@@ -1,8 +1,20 @@
 # Deployment Notes
 
-## Vercel
+## Cloudflare
 
-Deploy the app as a standard Next.js project. Set all variables from `.env.example` in the Vercel project before production traffic.
+The live demo deploys to Cloudflare Workers with the OpenNext Cloudflare adapter:
+
+```bash
+npm run deploy:cf
+```
+
+`wrangler.jsonc` configures the Worker name, OpenNext output, static assets binding, Node.js compatibility, and `PROOFALBUM_STORAGE=memory` for the hosted demo. The memory store keeps the demo self-contained, but it is not durable storage.
+
+Cloudflare Pages is appropriate for static Next.js exports. This app uses Server Actions and route handlers, so the full-stack Cloudflare deployment uses Workers.
+
+## Production Target
+
+For production traffic, replace the hosted demo's memory storage with Supabase Postgres and private object storage. Set all variables from `.env.example` in Cloudflare before production traffic.
 
 ## Supabase
 

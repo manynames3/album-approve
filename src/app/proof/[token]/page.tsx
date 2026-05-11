@@ -42,7 +42,7 @@ export default async function ProofPage({
               <LockKeyhole className="size-5" aria-hidden="true" />
             </div>
             <div>
-              <p className="font-semibold">ProofAlbum</p>
+              <p className="font-semibold">Album Approve</p>
               <p className="text-sm text-zinc-400">Secure album proof</p>
             </div>
           </div>

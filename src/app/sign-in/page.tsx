@@ -30,7 +30,7 @@ export default function SignInPage() {
           <div className="flex size-10 items-center justify-center rounded-lg bg-white text-zinc-950">
             <Album className="size-5" aria-hidden="true" />
           </div>
-          ProofAlbum
+          Album Approve
         </Link>
         <div className="max-w-xl">
           <Badge
@@ -64,7 +64,7 @@ export default function SignInPage() {
             </div>
             <CardTitle>Sign in</CardTitle>
             <CardDescription>
-              Use any email to enter the local ProofAlbum demo workspace.
+              Use any email to enter the local Album Approve demo workspace.
             </CardDescription>
           </CardHeader>
           <CardContent>

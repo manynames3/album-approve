@@ -89,7 +89,7 @@ export default function Home() {
             <span className="flex size-8 items-center justify-center rounded-lg bg-white/15 ring-1 ring-white/20">
               <Album className="size-4" aria-hidden="true" />
             </span>
-            ProofAlbum
+            Album Approve
           </Link>
           <div className="flex items-center gap-2">
             <Button
@@ -130,7 +130,7 @@ export default function Home() {
               Upload the album design. Send one clean proof link.
             </h1>
             <p className="mt-5 max-w-xl text-lg leading-8 text-zinc-200">
-              ProofAlbum turns exported album spreads into a private,
+              Album Approve turns exported album spreads into a private,
               flip-through client review with pinned comments, revision rounds,
               and approval tracking.
             </p>
@@ -235,7 +235,7 @@ export default function Home() {
           <div className="overflow-hidden rounded-xl border border-white/10 bg-white/10 p-3 shadow-2xl">
             <Image
               src="/proofalbum-proofing.png"
-              alt="ProofAlbum client proofing page with album spread review and comment controls"
+              alt="Album Approve client proofing page with album spread review and comment controls"
               width={1600}
               height={1000}
               className="aspect-[16/10] w-full rounded-lg object-cover object-top"
@@ -258,8 +258,8 @@ export default function Home() {
             </h2>
             <p className="mt-3 text-sm leading-6 text-zinc-600">
               Album changes usually arrive as scattered emails and vague notes.
-              ProofAlbum keeps the review tied to the design file, the spread,
-              the version, and the final decision.
+              Album Approve keeps the review tied to the design file, the
+              spread, the version, and the final decision.
             </p>
           </div>
           <div className="grid gap-4 md:grid-cols-3">

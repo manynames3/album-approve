@@ -1,6 +1,6 @@
 # Architecture Decision Records
 
-These ADRs document the main architecture decisions behind ProofAlbum.
+These ADRs document the main architecture decisions behind Album Approve.
 
 - [ADR 0001: Use Next.js App Router And Server Actions](0001-nextjs-app-router-and-server-actions.md)
 - [ADR 0002: Keep A Local Demo Store Behind A Server Boundary](0002-local-demo-store-behind-server-boundary.md)

@@ -32,7 +32,7 @@ export default async function BillingPage({
       <div>
         <h1 className="text-3xl font-semibold tracking-tight">Billing</h1>
         <p className="mt-2 max-w-2xl text-sm text-zinc-600">
-          ProofAlbum is wired for Stripe Billing. Without Stripe env vars,
+          Album Approve is wired for Stripe Billing. Without Stripe env vars,
           checkout uses safe stubs and keeps the app fully explorable.
         </p>
       </div>
@@ -86,7 +86,7 @@ export default async function BillingPage({
                 <li>
                   {config.customBranding
                     ? "Custom branding"
-                    : "ProofAlbum branding"}
+                    : "Album Approve branding"}
                 </li>
               </ul>
               <form action="/api/billing/checkout" method="post">

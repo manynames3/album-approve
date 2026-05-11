@@ -1,8 +1,11 @@
-import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { hmacDigest, isSafeEqual } from "@/server/security";
 
 const ASSET_TTL_SECONDS = 60 * 60;
+
+type AssetGlobal = typeof globalThis & {
+  __proofAlbumMemoryAssets?: Map<string, Buffer>;
+};
 
 export const ACCEPTED_IMAGE_TYPES = new Set(["image/jpeg", "image/png"]);
 export const ACCEPTED_PDF_TYPES = new Set([
@@ -11,6 +14,20 @@ export const ACCEPTED_PDF_TYPES = new Set([
 ]);
 export const MAX_UPLOAD_BYTES = 15 * 1024 * 1024;
 export const MAX_PDF_UPLOAD_BYTES = 50 * 1024 * 1024;
+
+function shouldUseMemoryStorage() {
+  return process.env.PROOFALBUM_STORAGE === "memory";
+}
+
+function memoryAssets() {
+  const store = globalThis as AssetGlobal;
+  store.__proofAlbumMemoryAssets ||= new Map<string, Buffer>();
+  return store.__proofAlbumMemoryAssets;
+}
+
+async function fsPromises() {
+  return import("node:fs/promises");
+}
 
 function dataRoot() {
   const testOverride =
@@ -104,7 +121,22 @@ export function contentTypeForKey(storageKey: string) {
 
 export async function readStoredAsset(storageKey: string) {
   const key = normalizeStorageKey(storageKey);
+
+  if (shouldUseMemoryStorage()) {
+    const bytes = memoryAssets().get(key);
+    if (!bytes) {
+      throw new Error("Asset not found.");
+    }
+
+    return {
+      bytes: Buffer.from(bytes),
+      size: bytes.byteLength,
+      contentType: contentTypeForKey(key),
+    };
+  }
+
   const filePath = storagePath(key);
+  const { readFile, stat } = await fsPromises();
   const [bytes, fileStat] = await Promise.all([
     readFile(filePath),
     stat(filePath),
@@ -118,9 +150,31 @@ export async function readStoredAsset(storageKey: string) {
 }
 
 export async function writeStoredAsset(storageKey: string, bytes: Buffer) {
+  if (shouldUseMemoryStorage()) {
+    memoryAssets().set(normalizeStorageKey(storageKey), Buffer.from(bytes));
+    return;
+  }
+
   const filePath = storagePath(storageKey);
+  const { mkdir, writeFile } = await fsPromises();
   await mkdir(path.dirname(filePath), { recursive: true });
   await writeFile(filePath, bytes);
+}
+
+async function storedAssetExists(storageKey: string) {
+  const key = normalizeStorageKey(storageKey);
+
+  if (shouldUseMemoryStorage()) {
+    return memoryAssets().has(key);
+  }
+
+  try {
+    const { stat } = await fsPromises();
+    await stat(storagePath(key));
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export function validateUploadFile(file: File) {
@@ -249,13 +303,11 @@ export async function ensureDemoAsset(
   subtitle: string,
   accent = "#0f766e",
 ) {
-  const filePath = storagePath(storageKey);
-
-  try {
-    await stat(filePath);
+  if (await storedAssetExists(storageKey)) {
     return;
-  } catch {
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="900" viewBox="0 0 1400 900">
+  }
+
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="900" viewBox="0 0 1400 900">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#f8fafc"/>
@@ -275,6 +327,5 @@ export async function ensureDemoAsset(
   <text x="996" y="632" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="32" font-weight="600" fill="#111827">${subtitle}</text>
 </svg>`;
 
-    await writeStoredAsset(storageKey, Buffer.from(svg));
-  }
+  await writeStoredAsset(storageKey, Buffer.from(svg));
 }

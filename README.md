@@ -4,7 +4,9 @@ Album Approve is a full-stack album proofing SaaS demo for photographers. It let
 
 ## Demo
 
-No public live demo URL is configured in this checkout. The repository includes a seeded local demo:
+Live demo: [album-approve.hangi87.workers.dev](https://album-approve.hangi87.workers.dev)
+
+The repository also includes a seeded local demo:
 
 ```bash
 npm install
@@ -116,14 +118,20 @@ Set `RESEND_API_KEY` and `EMAIL_FROM` to send proofing emails. Without credentia
 
 ## Deployment
 
-The intended deployment shape is Vercel for the Next.js app, Supabase Postgres for relational data, private object storage for spreads, Stripe for subscriptions, and Resend for transactional email.
+The current live demo deploys to Cloudflare Workers with the OpenNext Cloudflare adapter. Cloudflare Pages is best suited to static Next.js exports; this app uses Server Actions and route handlers, so the hosted demo uses Cloudflare's full-stack Next.js Workers path.
+
+```bash
+npm run deploy:cf
+```
+
+The production target remains Supabase Postgres for relational data, private object storage for spreads, Stripe for subscriptions, and Resend for transactional email.
 
 1. Create the Supabase project and run `supabase/migrations/0001_initial_schema.sql`.
 2. Create a private storage bucket for album spreads.
 3. Configure Stripe products and webhook URL `/api/stripe/webhook`.
 4. Configure Resend sender/domain verification.
-5. Set all env vars in Vercel.
-6. Deploy with `npm run build`.
+5. Set production env vars in Cloudflare.
+6. Deploy with `npm run deploy:cf`.
 
 More detail is in [docs/deployment.md](docs/deployment.md).
 

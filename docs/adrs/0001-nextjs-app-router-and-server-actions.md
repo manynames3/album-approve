@@ -6,7 +6,7 @@ Accepted.
 
 ## Context
 
-ProofAlbum needs authenticated studio pages, public proofing pages, file uploads, form-heavy workflows, and server-side access to private secrets. The project should remain small enough for a portfolio reviewer to understand quickly.
+Album Approve needs authenticated studio pages, public proofing pages, file uploads, form-heavy workflows, and server-side access to private secrets. The project should remain small enough for a portfolio reviewer to understand quickly.
 
 ## Decision
 

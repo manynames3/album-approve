@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "ProofAlbum",
-    template: "%s | ProofAlbum",
+    default: "Album Approve",
+    template: "%s | Album Approve",
   },
   description:
     "Cloud album proofing for photographers: share album spreads, collect client comments, and manage approvals.",

@@ -1,6 +1,6 @@
 # Security Notes
 
-ProofAlbum is structured so the demo works locally while the production boundaries stay explicit.
+Album Approve is structured so the demo works locally while the production boundaries stay explicit.
 
 ## Auth
 

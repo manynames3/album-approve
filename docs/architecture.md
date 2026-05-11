@@ -1,6 +1,6 @@
 # Architecture
 
-ProofAlbum is a Next.js App Router application that keeps the portfolio demo self-contained while preserving production boundaries for data, storage, billing, and email.
+Album Approve is a Next.js App Router application that keeps the portfolio demo self-contained while preserving production boundaries for data, storage, billing, and email.
 
 ## Overview
 
@@ -18,7 +18,7 @@ flowchart LR
   studio["Photographer / Studio user"]
   client["Client reviewer"]
 
-  subgraph app["ProofAlbum - Next.js application on Vercel"]
+  subgraph app["Album Approve - Next.js application"]
     dashboard["Studio dashboard\nReact Server Components + client upload manager"]
     proof["Client proofing portal\nReact proof viewer + pinned comments"]
     actions["Server Actions\nZod validation + auth checks"]
@@ -29,6 +29,11 @@ flowchart LR
   subgraph local["Local demo runtime"]
     json[".data/proofalbum-demo.json\nseeded JSON store"]
     uploads[".data/uploads\nprivate local spread assets"]
+  end
+
+  subgraph hosted["Hosted Cloudflare demo"]
+    worker["Cloudflare Worker\nOpenNext runtime"]
+    memory["In-memory demo store\nnon-durable"]
   end
 
   subgraph production["Production targets"]
@@ -48,6 +53,9 @@ flowchart LR
   routes --> server
   server --> json
   server --> uploads
+  worker --> dashboard
+  worker --> proof
+  server -. hosted demo .-> memory
   server -. production boundary .-> supabase
   server -. production boundary .-> objectStorage
   server -. configured integration .-> stripe
@@ -85,7 +93,8 @@ flowchart LR
 The current repository supports a local demo and a production target:
 
 - **Local demo:** JSON persistence and local file storage under `.data`, with seeded demo assets and fake-safe Stripe and email behavior.
-- **Hosted target:** Vercel for Next.js, Supabase Postgres for relational data, private object storage for spreads, Stripe for subscriptions, and Resend for transactional email.
+- **Hosted demo:** Cloudflare Workers with OpenNext, static asset binding, Node.js compatibility, and non-durable in-memory demo storage.
+- **Production target:** Supabase Postgres for relational data, private object storage for spreads, Stripe for subscriptions, and Resend for transactional email.
 
 `src/server/repository.ts` exposes a Supabase readiness check so production setup can fail early when the schema or credentials are missing.
 

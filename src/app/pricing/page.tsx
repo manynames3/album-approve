@@ -18,7 +18,7 @@ export default function PricingPage() {
         <Button asChild variant="ghost" className="gap-2">
           <Link href="/">
             <ArrowLeft className="size-4" aria-hidden="true" />
-            ProofAlbum
+            Album Approve
           </Link>
         </Button>
         <div className="max-w-2xl">
@@ -82,7 +82,7 @@ export default function PricingPage() {
                       label={
                         config.customBranding
                           ? "Custom branding"
-                          : "ProofAlbum branding"
+                          : "Album Approve branding"
                       }
                     />
                   </ul>

@@ -27,7 +27,7 @@ export async function sendEmailOrLog(input: {
   type: EmailEventType;
 }) {
   const resend = getResendClient();
-  const from = process.env.EMAIL_FROM || "ProofAlbum <proofs@example.com>";
+  const from = process.env.EMAIL_FROM || "Album Approve <proofs@example.com>";
   const html = renderEmailShell({
     subject: input.subject,
     content: input.html,
@@ -71,7 +71,7 @@ function renderEmailShell(input: { subject: string; content: string }) {
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border:1px solid #e4e4e7;border-radius:8px;overflow:hidden;">
             <tr>
               <td style="padding:20px 24px;border-bottom:1px solid #e4e4e7;">
-                <strong style="font-size:16px;">ProofAlbum</strong>
+                <strong style="font-size:16px;">Album Approve</strong>
               </td>
             </tr>
             <tr>

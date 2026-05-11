@@ -38,7 +38,7 @@ export default async function DashboardLayout({
               <Album className="size-5" aria-hidden="true" />
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-semibold">ProofAlbum</p>
+              <p className="text-sm font-semibold">Album Approve</p>
               <p className="truncate text-xs text-zinc-500">Studio workspace</p>
             </div>
           </div>
@@ -105,7 +105,7 @@ export default async function DashboardLayout({
             className="flex items-center gap-2 font-semibold"
           >
             <Album className="size-5 text-teal-700" aria-hidden="true" />
-            ProofAlbum
+            Album Approve
           </Link>
           <form action={signOutAction}>
             <Button size="icon" variant="ghost" aria-label="Sign out">

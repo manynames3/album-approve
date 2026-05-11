@@ -1,4 +1,3 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import {
   createId,
@@ -43,6 +42,18 @@ export const DEMO_USER_ID = "user_demo";
 export const DEMO_STUDIO_ID = "studio_evergreen";
 export const DEMO_SHARE_TOKEN = "demo-proof-token";
 
+type ProofAlbumGlobal = typeof globalThis & {
+  __proofAlbumMemoryData?: ProofAlbumData;
+};
+
+function shouldUseMemoryStore() {
+  return process.env.PROOFALBUM_STORAGE === "memory";
+}
+
+async function fsPromises() {
+  return import("node:fs/promises");
+}
+
 function dataFile() {
   const testOverride =
     process.env.NODE_ENV === "test"
@@ -56,6 +67,11 @@ function dataFile() {
 }
 
 async function ensureDataDir() {
+  if (shouldUseMemoryStore()) {
+    return;
+  }
+
+  const { mkdir } = await fsPromises();
   await mkdir(path.dirname(dataFile()), { recursive: true });
 }
 
@@ -274,6 +290,14 @@ async function ensureDemoAssets() {
 
 export async function resetDemoData() {
   const seed = createSeedData();
+
+  if (shouldUseMemoryStore()) {
+    (globalThis as ProofAlbumGlobal).__proofAlbumMemoryData = seed;
+    await ensureDemoAssets();
+    return seed;
+  }
+
+  const { writeFile } = await fsPromises();
   await ensureDataDir();
   await writeFile(dataFile(), JSON.stringify(seed, null, 2));
   await ensureDemoAssets();
@@ -281,7 +305,18 @@ export async function resetDemoData() {
 }
 
 export async function readData(): Promise<ProofAlbumData> {
+  if (shouldUseMemoryStore()) {
+    const store = globalThis as ProofAlbumGlobal;
+    if (!store.__proofAlbumMemoryData) {
+      return resetDemoData();
+    }
+
+    await ensureDemoAssets();
+    return store.__proofAlbumMemoryData;
+  }
+
   try {
+    const { readFile } = await fsPromises();
     const raw = await readFile(dataFile(), "utf8");
     await ensureDemoAssets();
     return JSON.parse(raw) as ProofAlbumData;
@@ -296,6 +331,12 @@ export async function readData(): Promise<ProofAlbumData> {
 }
 
 async function writeData(data: ProofAlbumData) {
+  if (shouldUseMemoryStore()) {
+    (globalThis as ProofAlbumGlobal).__proofAlbumMemoryData = data;
+    return;
+  }
+
+  const { writeFile } = await fsPromises();
   await ensureDataDir();
   await writeFile(dataFile(), JSON.stringify(data, null, 2));
 }
