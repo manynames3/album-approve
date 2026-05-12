@@ -1,12 +1,8 @@
 import Link from "next/link";
 import type React from "react";
-import {
-  Album,
-  CheckCircle2,
-  MessageSquareText,
-  ShieldCheck,
-} from "lucide-react";
+import { CheckCircle2, MessageSquareText, ShieldCheck } from "lucide-react";
 import { signInAction } from "@/app/actions/auth";
+import { BrandMark, BrandWordmark } from "@/components/brand";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,11 +22,9 @@ export default function SignInPage() {
         <Link
           href="/"
           className="flex items-center gap-3 text-sm font-semibold"
+          aria-label="Album Approve home"
         >
-          <div className="flex size-10 items-center justify-center rounded-lg bg-white text-zinc-950">
-            <Album className="size-5" aria-hidden="true" />
-          </div>
-          Album Approve
+          <BrandWordmark className="text-[0.9rem] tracking-[0.3em]" />
         </Link>
         <div className="max-w-xl">
           <Badge
@@ -59,9 +53,7 @@ export default function SignInPage() {
       <section className="flex min-h-[calc(100vh-4rem)] items-center justify-center lg:px-8">
         <Card className="w-full max-w-md bg-white">
           <CardHeader>
-            <div className="mb-2 flex size-10 items-center justify-center rounded-lg bg-teal-700 text-white lg:hidden">
-              <Album className="size-5" aria-hidden="true" />
-            </div>
+            <BrandMark className="mb-2 lg:hidden" />
             <CardTitle>Sign in</CardTitle>
             <CardDescription>
               Use any email to enter the local Album Approve demo workspace.

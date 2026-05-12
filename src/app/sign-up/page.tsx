@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { Album } from "lucide-react";
 import { signUpAction } from "@/app/actions/auth";
+import { BrandMark } from "@/components/brand";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -17,9 +17,7 @@ export default function SignUpPage() {
     <main className="flex min-h-screen items-center justify-center bg-zinc-100 px-4 py-10">
       <Card className="w-full max-w-md bg-white">
         <CardHeader>
-          <div className="mb-2 flex size-10 items-center justify-center rounded-lg bg-teal-700 text-white">
-            <Album className="size-5" aria-hidden="true" />
-          </div>
+          <BrandMark className="mb-2" />
           <CardTitle>Create studio</CardTitle>
           <CardDescription>
             The demo creates a local session and routes you to studio setup.

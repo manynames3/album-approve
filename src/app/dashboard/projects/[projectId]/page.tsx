@@ -63,7 +63,7 @@ export default async function ProjectPage({
 
   return (
     <div className="min-w-0 space-y-7">
-      <section className="overflow-hidden rounded-xl border border-zinc-200/80 bg-white shadow-[0_1px_2px_rgba(24,24,27,0.04)]">
+      <section className="overflow-hidden rounded-lg border border-zinc-200/80 bg-white">
         <div className="grid gap-6 p-5 lg:grid-cols-[1fr_360px] lg:p-6">
           <div>
             <div className="flex flex-wrap items-center gap-2">
@@ -101,8 +101,10 @@ export default async function ProjectPage({
               </form>
             </div>
           </div>
-          <div className="rounded-lg border bg-zinc-50 p-4">
-            <p className="text-sm font-medium">Review path</p>
+          <div className="rounded-lg border border-zinc-200 bg-[#fbfaf6] p-4">
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-zinc-500">
+              Review path
+            </p>
             <div className="mt-4 grid gap-3 text-sm">
               <FlowItem
                 icon={FileImage}
@@ -152,7 +154,7 @@ export default async function ProjectPage({
         </Card>
       ) : null}
 
-      <section className="grid gap-4 md:grid-cols-4">
+      <section className="grid gap-3 md:grid-cols-4">
         <InfoCard
           label="Project status"
           value={<StatusBadge status={project.status} />}

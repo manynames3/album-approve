@@ -96,9 +96,9 @@ export function SpreadManager({
                 <figure
                   key={spread.id}
                   id={`spread-${spread.id}`}
-                  className="group min-w-0 overflow-hidden rounded-lg border bg-white shadow-[0_1px_1px_rgba(24,24,27,0.03)] transition hover:border-zinc-300 hover:shadow-[0_10px_28px_rgba(24,24,27,0.07)]"
+                  className="group min-w-0 overflow-hidden rounded-lg border border-zinc-200 bg-white transition hover:border-zinc-300"
                 >
-                  <div className="relative bg-zinc-100 p-3">
+                  <div className="relative bg-[#f7f6f2] p-3">
                     <Image
                       src={spread.thumbnailUrl}
                       alt={`Spread ${spreadIndex + 1}: ${spread.filename}`}
@@ -326,7 +326,7 @@ export function SpreadManager({
               className={`flex min-h-48 cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed p-6 text-center transition ${
                 isDragging
                   ? "border-teal-500 bg-teal-50"
-                  : "border-zinc-300 bg-zinc-50 hover:border-teal-300 hover:bg-teal-50/60"
+                  : "border-zinc-300 bg-[#fbfaf6] hover:border-emerald-300 hover:bg-emerald-50/60"
               }`}
               onDragOver={(event) => {
                 event.preventDefault();
@@ -335,7 +335,7 @@ export function SpreadManager({
               onDragLeave={() => setIsDragging(false)}
               onDrop={handleDrop}
             >
-              <div className="flex size-11 items-center justify-center rounded-lg bg-white text-teal-700 shadow-sm ring-1 ring-zinc-200">
+              <div className="flex size-11 items-center justify-center rounded-lg bg-white text-emerald-700 ring-1 ring-zinc-200">
                 <Upload className="size-6" aria-hidden="true" />
               </div>
               <span className="mt-3 text-sm font-medium">

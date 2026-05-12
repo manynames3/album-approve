@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
-  Album,
   CreditCard,
   LayoutDashboard,
   LogOut,
@@ -9,7 +8,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { signOutAction } from "@/app/actions/auth";
-import { Badge } from "@/components/ui/badge";
+import { BrandWordmark } from "@/components/brand";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { getCurrentUser } from "@/server/auth";
@@ -30,29 +29,28 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen text-zinc-950">
-      <aside className="fixed inset-y-0 left-0 z-20 hidden w-72 border-r border-zinc-200/80 bg-white/90 backdrop-blur lg:block">
+    <div className="min-h-screen bg-[#f7f6f2] text-zinc-950">
+      <aside className="fixed inset-y-0 left-0 z-20 hidden w-72 border-r border-zinc-200/80 bg-[#fbfaf6]/95 backdrop-blur lg:block">
         <div className="flex h-full flex-col">
-          <div className="flex h-20 items-center gap-3 px-5">
-            <div className="flex size-10 items-center justify-center rounded-lg bg-teal-700 text-white shadow-sm">
-              <Album className="size-5" aria-hidden="true" />
-            </div>
+          <div className="flex h-24 items-center gap-3 px-5">
             <div className="min-w-0">
-              <p className="text-sm font-semibold">Album Approve</p>
-              <p className="truncate text-xs text-zinc-500">Studio workspace</p>
+              <BrandWordmark className="text-[1.02rem] tracking-[0.26em]" />
+              <p className="mt-2 truncate text-xs font-medium text-zinc-500">
+                Studio workspace
+              </p>
             </div>
           </div>
           <Separator />
-          <div className="px-4 py-4">
-            <div className="rounded-lg border bg-zinc-50/80 p-3">
+          <div className="px-5 py-5">
+            <div className="border-y border-zinc-200 py-3">
               <div className="flex items-center gap-2">
-                <Sparkles className="size-4 text-amber-500" aria-hidden />
-                <span className="text-xs font-medium text-zinc-700">
+                <Sparkles className="size-3.5 text-emerald-600" aria-hidden />
+                <span className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
                   Demo workspace
                 </span>
               </div>
               <p className="mt-2 text-xs leading-5 text-zinc-500">
-                Manage the sample Harper album from upload through approval.
+                Harper album review from upload to approval.
               </p>
             </div>
           </div>
@@ -64,7 +62,7 @@ export default async function DashboardLayout({
                   asChild
                   key={item.href}
                   variant="ghost"
-                  className="h-10 justify-start gap-3 px-3 text-zinc-700 hover:bg-teal-50 hover:text-teal-900"
+                  className="h-10 justify-start gap-3 px-3 text-zinc-700 hover:bg-white hover:text-zinc-950 hover:shadow-[0_1px_1px_rgba(24,24,27,0.04)]"
                 >
                   <Link href={item.href}>
                     <Icon className="size-4" aria-hidden="true" />
@@ -74,23 +72,23 @@ export default async function DashboardLayout({
               );
             })}
           </nav>
-          <div className="border-t bg-zinc-50/80 p-4">
-            <div className="rounded-lg border bg-white p-3">
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-medium">{user.name}</p>
-                  <p className="truncate text-xs text-zinc-500">{user.email}</p>
-                </div>
-                <Badge
-                  variant="outline"
-                  className="border-emerald-200 bg-emerald-50 text-emerald-700"
-                >
-                  Owner
-                </Badge>
+          <div className="border-t border-zinc-200 bg-[#fbfaf6] p-5">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="truncate text-sm font-medium">{user.name}</p>
+                <p className="mt-1 truncate text-xs text-zinc-500">
+                  {user.email}
+                </p>
               </div>
+              <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">
+                Owner
+              </span>
             </div>
             <form action={signOutAction} className="mt-3">
-              <Button variant="outline" className="w-full justify-start gap-2">
+              <Button
+                variant="outline"
+                className="w-full justify-start gap-2 border-zinc-200 bg-white shadow-none"
+              >
                 <LogOut className="size-4" aria-hidden="true" />
                 Sign out
               </Button>
@@ -99,13 +97,9 @@ export default async function DashboardLayout({
         </div>
       </aside>
       <div className="lg:pl-72">
-        <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b border-zinc-200/80 bg-white/90 px-4 backdrop-blur lg:hidden">
-          <Link
-            href="/dashboard"
-            className="flex items-center gap-2 font-semibold"
-          >
-            <Album className="size-5 text-teal-700" aria-hidden="true" />
-            Album Approve
+        <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b border-zinc-200/80 bg-[#fbfaf6]/95 px-4 backdrop-blur lg:hidden">
+          <Link href="/dashboard" className="flex items-center gap-2">
+            <BrandWordmark className="text-[0.94rem] tracking-[0.24em]" />
           </Link>
           <form action={signOutAction}>
             <Button size="icon" variant="ghost" aria-label="Sign out">

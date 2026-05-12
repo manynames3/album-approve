@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowLeft, CheckCircle2, CreditCard } from "lucide-react";
+import { BrandWordmark } from "@/components/brand";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,7 +19,7 @@ export default function PricingPage() {
         <Button asChild variant="ghost" className="gap-2">
           <Link href="/">
             <ArrowLeft className="size-4" aria-hidden="true" />
-            Album Approve
+            <BrandWordmark className="text-[0.68rem] tracking-[0.2em]" />
           </Link>
         </Button>
         <div className="max-w-2xl">

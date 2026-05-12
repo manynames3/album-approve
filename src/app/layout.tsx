@@ -19,6 +19,9 @@ export const metadata: Metadata = {
   },
   description:
     "Cloud album proofing for photographers: share album spreads, collect client comments, and manage approvals.",
+  icons: {
+    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
+  },
 };
 
 export default function RootLayout({

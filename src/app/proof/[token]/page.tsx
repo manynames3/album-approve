@@ -1,5 +1,6 @@
 import { LockKeyhole } from "lucide-react";
 import { unlockProofAction } from "@/app/actions/proof";
+import { BrandMark, BrandWordmark } from "@/components/brand";
 import { ProofViewer } from "@/components/proof/proof-viewer";
 import { Button } from "@/components/ui/button";
 import {
@@ -38,12 +39,13 @@ export default async function ProofPage({
       <main className="min-h-screen bg-zinc-950 px-4 py-10 text-white">
         <div className="mx-auto max-w-md">
           <div className="mb-8 flex items-center gap-3">
-            <div className="flex size-10 items-center justify-center rounded-lg bg-white text-zinc-950">
-              <LockKeyhole className="size-5" aria-hidden="true" />
-            </div>
+            <BrandMark tone="light" />
             <div>
-              <p className="font-semibold">Album Approve</p>
-              <p className="text-sm text-zinc-400">Secure album proof</p>
+              <BrandWordmark className="text-[0.68rem] tracking-[0.2em]" />
+              <p className="mt-1 flex items-center gap-1.5 text-sm text-zinc-400">
+                <LockKeyhole className="size-3.5" aria-hidden="true" />
+                Secure album proof
+              </p>
             </div>
           </div>
           <Card className="bg-white text-zinc-950">
