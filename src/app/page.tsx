@@ -323,6 +323,12 @@ export default function Home() {
           </Button>
         </div>
       </section>
+
+      <footer className="border-t border-zinc-200 px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+          ©2026 SUPREME AI VENTURES LLC
+        </div>
+      </footer>
     </main>
   );
 }
