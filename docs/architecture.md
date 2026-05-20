@@ -1,6 +1,6 @@
 # Architecture
 
-Album Approve is a Next.js App Router application that keeps the portfolio demo self-contained while preserving production boundaries for data, storage, billing, and email.
+Album Approve is a Next.js App Router application for album proofing. It keeps the local preview self-contained while preserving production boundaries for data, storage, billing, and email.
 
 ## Overview
 
@@ -92,8 +92,8 @@ flowchart LR
 
 The current repository supports a local demo and a production target:
 
-- **Local demo:** JSON persistence and local file storage under `.data`, with seeded demo assets and fake-safe Stripe and email behavior.
-- **Hosted demo:** Cloudflare Workers with OpenNext, static asset binding, Node.js compatibility, and non-durable in-memory demo storage.
+- **Local preview:** JSON persistence and local file storage under `.data`, with seeded sample assets and safe Stripe/email fallback behavior.
+- **Hosted preview:** Cloudflare Workers with OpenNext, static asset binding, Node.js compatibility, and non-durable in-memory preview storage.
 - **Production target:** Supabase Postgres for relational data, private object storage for spreads, Stripe for subscriptions, and Resend for transactional email.
 
 `src/server/repository.ts` exposes a Supabase readiness check so production setup can fail early when the schema or credentials are missing.
