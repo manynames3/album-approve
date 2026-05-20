@@ -8,7 +8,20 @@ import {
 const DEFAULT_DEV_SECRET = "proofalbum-local-development-secret";
 
 function appSecret() {
-  return process.env.PROOFALBUM_SECRET || DEFAULT_DEV_SECRET;
+  const configuredSecret = process.env.PROOFALBUM_SECRET;
+
+  if (configuredSecret) {
+    return configuredSecret;
+  }
+
+  if (
+    process.env.NODE_ENV === "production" &&
+    process.env.PROOFALBUM_STORAGE !== "memory"
+  ) {
+    throw new Error("PROOFALBUM_SECRET is required in production.");
+  }
+
+  return DEFAULT_DEV_SECRET;
 }
 
 export function nowIso() {

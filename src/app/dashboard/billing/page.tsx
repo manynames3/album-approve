@@ -26,23 +26,31 @@ export default async function BillingPage({
 
   const params = await searchParams;
   const { subscription } = await getDashboardData(user.id);
+  const checkoutMessage =
+    params.checkout === "success"
+      ? "Checkout complete. Your plan is being updated."
+      : params.checkout === "cancelled"
+        ? "Checkout was cancelled. Your plan was not changed."
+        : params.checkout
+          ? "Plan selection saved for this workspace."
+          : "";
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-semibold tracking-tight">Billing</h1>
         <p className="mt-2 max-w-2xl text-sm text-zinc-600">
-          Album Approve is wired for Stripe Billing. Without Stripe env vars,
-          checkout uses safe stubs and keeps the app fully explorable.
+          Manage plan access for active album projects, private storage,
+          revision history, and studio branding.
         </p>
       </div>
 
-      {params.checkout ? (
+      {checkoutMessage ? (
         <Card className="border-teal-200 bg-teal-50">
           <CardContent className="flex items-center gap-3 pt-0 text-teal-900">
             <Sparkles className="size-5" aria-hidden="true" />
             <p className="text-sm">
-              Checkout result: {params.checkout}
+              {checkoutMessage}
               {params.plan ? ` for ${params.plan}` : ""}.
             </p>
           </CardContent>

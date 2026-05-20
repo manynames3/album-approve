@@ -407,13 +407,13 @@ export default async function ProjectPage({
         <CardHeader>
           <CardTitle>Revision notes</CardTitle>
           <CardDescription>
-            Operational notes for handoff to a production data backend.
+            Internal notes for this album review cycle.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Textarea
             readOnly
-            value="The demo store persists project, upload, comment, and approval state locally under .data. The production boundary is isolated behind server/store.ts, server/storage.ts, server/supabase.ts, server/billing.ts, and server/email.ts."
+            value="Use this area for production handoff details, retouching notes, album lab instructions, or context for the next revision round."
           />
         </CardContent>
       </Card>

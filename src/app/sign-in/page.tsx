@@ -31,7 +31,7 @@ export default function SignInPage() {
             variant="outline"
             className="border-white/20 bg-white/10 text-white"
           >
-            Local demo
+            Studio workspace
           </Badge>
           <h1 className="mt-5 text-4xl font-semibold tracking-tight">
             Review albums, collect notes, and close approvals.
@@ -56,7 +56,7 @@ export default function SignInPage() {
             <BrandMark className="mb-2 lg:hidden" />
             <CardTitle>Sign in</CardTitle>
             <CardDescription>
-              Use any email to enter the local Album Approve demo workspace.
+              Continue to the Album Approve studio workspace.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -67,7 +67,7 @@ export default function SignInPage() {
                   id="email"
                   name="email"
                   type="email"
-                  defaultValue="demo@proofalbum.test"
+                  placeholder="you@studio.com"
                   required
                 />
               </div>

@@ -38,7 +38,7 @@ export default async function SettingsPage() {
         <CardHeader>
           <CardTitle>Branding</CardTitle>
           <CardDescription>
-            These fields are integration-ready for Supabase profile storage.
+            These fields appear on client proofing links and proofing emails.
           </CardDescription>
         </CardHeader>
         <CardContent>

@@ -16,8 +16,8 @@ export default function ErrorPage({
           Something went wrong
         </h1>
         <p className="mt-3 text-sm text-zinc-600">
-          Retry the request. If this persists, check environment configuration
-          and local demo data.
+          Retry the request. If this persists, contact support with the time and
+          the page you were viewing.
         </p>
         <Button className="mt-6" onClick={reset}>
           Try again

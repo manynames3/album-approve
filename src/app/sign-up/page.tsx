@@ -20,7 +20,8 @@ export default function SignUpPage() {
           <BrandMark className="mb-2" />
           <CardTitle>Create studio</CardTitle>
           <CardDescription>
-            The demo creates a local session and routes you to studio setup.
+            Create a studio workspace and configure the client-facing proofing
+            experience.
           </CardDescription>
         </CardHeader>
         <CardContent>

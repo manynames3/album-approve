@@ -61,7 +61,7 @@ export default async function DashboardPage() {
                 variant="outline"
                 className="border-amber-200 bg-amber-50 text-amber-800"
               >
-                Portfolio demo
+                Studio workspace
               </Badge>
             </div>
             <h1 className="mt-4 max-w-2xl text-3xl font-semibold tracking-tight text-zinc-950 sm:text-4xl">

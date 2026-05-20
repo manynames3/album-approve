@@ -7,20 +7,17 @@ import {
   BookOpen,
   CheckCircle2,
   Clock3,
-  CreditCard,
   Database,
-  FileImage,
   FileSpreadsheet,
   FileUp,
   KeyRound,
   Link2,
-  Mail,
+  LockKeyhole,
   MessageSquareText,
   Repeat2,
-  Server,
   ShieldCheck,
-  UploadCloud,
   Users,
+  XCircle,
 } from "lucide-react";
 import { BrandWordmark } from "@/components/brand";
 import { Badge } from "@/components/ui/badge";
@@ -32,173 +29,229 @@ const instrumentSerif = Instrument_Serif({
 });
 
 const navItems = [
-  { label: "Product", href: "#product" },
-  { label: "Security", href: "#security" },
-  { label: "Integrations", href: "#integrations" },
-  { label: "Pricing", href: "/pricing" },
+  { label: "Problem", href: "#problem" },
+  { label: "Workflow", href: "#workflow" },
+  { label: "Trust", href: "#trust" },
+  { label: "Access", href: "#access" },
+  { label: "FAQ", href: "#faq" },
 ];
 
-const problemPoints = [
+const proofPromise = [
+  "Send one private album proof",
+  "Keep comments pinned to spreads",
+  "Capture approval before print",
+];
+
+const painfulWorkflow = [
   {
-    title: "Feedback arrives out of context",
+    title: "Screenshots replace context",
     description:
-      "Album changes often show up as email paragraphs, screenshots, or vague spread references.",
+      "A client circles a phone screenshot, forwards a marked-up PDF, or writes 'page three' when they mean the fourth spread.",
   },
   {
-    title: "Client portals add friction",
+    title: "Revision notes scatter across channels",
     description:
-      "A proof should be easy to open, review, comment on, and approve without another account setup step.",
+      "Email, texts, PDFs, and studio notes all describe the same album, but none of them become one reliable change list.",
   },
   {
-    title: "Approvals need a record",
+    title: "Approval becomes hard to prove",
     description:
-      "Studios need comments, revisions, approvals, and exports tied back to the album version being reviewed.",
+      "When the album is ready for production, the studio still has to confirm which version was approved and what comments were resolved.",
   },
 ];
 
-const workflow = [
+const solutionSteps = [
   {
-    title: "Upload",
-    description: "Add exported JPG, PNG, or PDF album spreads to a project.",
+    title: "Upload the exported spreads",
+    description:
+      "Add JPG, PNG, or PDF album design files to a client project after the layout is ready for review.",
     icon: FileUp,
   },
   {
-    title: "Share",
-    description: "Create one private proof link for the client review.",
+    title: "Send one proof link",
+    description:
+      "Share a tokenized client proof that opens in the browser, flips through the album, and can be password protected.",
     icon: Link2,
   },
   {
-    title: "Comment",
-    description: "Collect pinned notes on the exact spread that needs edits.",
+    title: "Resolve feedback before production",
+    description:
+      "See spread-level notes, create revised versions, export CSV feedback, and capture the final approval decision.",
+    icon: CheckCircle2,
+  },
+];
+
+const coreBenefits = [
+  {
+    title: "Fewer ambiguous edits",
+    description:
+      "Pinned notes stay attached to the exact spread, so a designer is not guessing which image, page, or layout area changed.",
     icon: MessageSquareText,
   },
   {
-    title: "Approve",
-    description: "Track revisions, resolve notes, and capture the decision.",
-    icon: CheckCircle2,
+    title: "Shorter review rounds",
+    description:
+      "Clients can open one link, move through the album, leave comments, and approve without creating an account.",
+    icon: Clock3,
+  },
+  {
+    title: "Cleaner production handoff",
+    description:
+      "Export comments as CSV and keep revision history tied to the album version that was reviewed.",
+    icon: FileSpreadsheet,
+  },
+  {
+    title: "Less approval risk",
+    description:
+      "Approval records attach to a version, helping the studio avoid sending the wrong album to print.",
+    icon: ShieldCheck,
   },
 ];
 
 const useCases = [
   {
-    title: "Wedding album reviews",
+    title: "Wedding album proof delivery",
     description:
-      "Send a polished proof link after the album design is ready and keep feedback tied to each spread.",
+      "Send a polished proof after the first album design is ready and keep the client review out of your inbox.",
     icon: BookOpen,
   },
   {
-    title: "Client revision rounds",
+    title: "Revision rounds with image swaps",
     description:
-      "Replace spreads, create new versions, and preserve the review history for the project.",
+      "Create a new version after layout changes, then preserve old notes while the client reviews the updated spreads.",
     icon: Repeat2,
   },
   {
-    title: "Studio handoff",
+    title: "Studio-to-designer handoff",
     description:
-      "Export CSV feedback so production notes can move cleanly into the next step of the workflow.",
-    icon: FileSpreadsheet,
-  },
-];
-
-const architectureFeatures = [
-  {
-    title: "Versioned proof model",
-    description:
-      "Projects contain album versions, spreads, comments, share links, approvals, and subscription state.",
-    icon: Server,
-  },
-  {
-    title: "Validated uploads",
-    description:
-      "JPG, PNG, and PDF imports validate file type, extension, size, storage-key safety, and dimensions where available.",
-    icon: UploadCloud,
-  },
-  {
-    title: "Dashboard operations",
-    description:
-      "The studio dashboard handles uploads, replacements, proof links, comment resolution, revision rounds, and CSV export.",
+      "Turn client comments into a clean change list for an internal designer, album company, or production assistant.",
     icon: Users,
   },
+  {
+    title: "Final approval before print",
+    description:
+      "Collect the final decision against the current version before the album moves into ordering or production.",
+    icon: CheckCircle2,
+  },
 ];
 
-const securityFeatures = [
+const differentiation = [
   {
-    title: "Hashed proof tokens",
+    question: "Why not just use ChatGPT?",
+    answer:
+      "ChatGPT can help write emails. It does not host private album spreads, pin feedback to a layout, track versions, or capture a client approval record.",
+  },
+  {
+    question: "Why not spreadsheets?",
+    answer:
+      "A spreadsheet can track tasks after the fact. It does not give the client a visual proofing experience or prevent vague notes from entering the workflow.",
+  },
+  {
+    question: "Why not Zapier or n8n?",
+    answer:
+      "Automation tools can move data between systems. They do not replace the client-facing review surface where the feedback is created.",
+  },
+  {
+    question: "Why not keep doing it manually?",
+    answer:
+      "Manual proofing works until revisions pile up. The cost is time spent interpreting notes, chasing approvals, and rebuilding the same handoff list.",
+  },
+];
+
+const trustSignals = [
+  {
+    title: "Tokenized proof links",
     description:
-      "Share tokens are generated with cryptographic randomness and stored as HMAC hashes.",
+      "Proof links use generated tokens, and newly created share tokens are stored as HMAC hashes.",
     icon: KeyRound,
   },
   {
-    title: "Signed asset access",
+    title: "Private asset routes",
     description:
-      "Album spreads are served through signed asset routes instead of exposing private storage keys.",
+      "Album spreads are served through signed routes instead of exposing direct storage keys.",
+    icon: LockKeyhole,
+  },
+  {
+    title: "Separate guest access",
+    description:
+      "Dashboard sessions and client proof access are separated, with optional proof passwords supported.",
     icon: ShieldCheck,
   },
   {
-    title: "Scoped review sessions",
+    title: "Preview data boundary",
     description:
-      "Dashboard access uses signed HTTP-only sessions, while proof access is scoped to share tokens and optional proof cookies.",
-    icon: Clock3,
-  },
-];
-
-const integrationBoundaries = [
-  {
-    title: "Design file inputs",
-    description: "JPG, PNG, and PDF imports become reviewable proof spreads.",
-    icon: FileImage,
-  },
-  {
-    title: "Feedback export",
-    description:
-      "Project comments can be exported as CSV from the studio dashboard.",
-    icon: FileSpreadsheet,
-  },
-  {
-    title: "Supabase-ready data",
-    description:
-      "A Postgres migration exists for studios, clients, projects, versions, spreads, comments, approvals, and subscriptions.",
+      "Use the public preview with sample albums. Live client work should run on configured private storage, email, billing, and rate limits.",
     icon: Database,
   },
+];
+
+const pricingPlans = [
   {
-    title: "Billing and email boundaries",
-    description:
-      "Stripe checkout/webhook and Resend email boundaries are isolated behind server modules with local stubs.",
-    icon: CreditCard,
+    name: "Free",
+    price: "$0",
+    description: "Evaluate the proofing workflow with one active album.",
+    features: ["1 active album", "1 GB private storage", "Basic review"],
   },
   {
-    title: "Private storage target",
-    description:
-      "The local storage layer is designed to move to Supabase Storage or S3-compatible private object storage.",
-    icon: Server,
+    name: "Starter",
+    price: "$12/mo",
+    description: "For photographers sending regular album proofs.",
+    features: [
+      "10 active albums",
+      "20 GB private storage",
+      "Revision history",
+      "Custom branding",
+    ],
+    featured: true,
   },
   {
-    title: "Client share link",
-    description:
-      "Clients can review, comment, request changes, or approve from a tokenized proof URL.",
-    icon: Mail,
+    name: "Pro",
+    price: "$29/mo",
+    description: "For studios with steady album volume.",
+    features: [
+      "Unlimited active albums",
+      "100 GB private storage",
+      "Revision history",
+      "Custom branding",
+    ],
   },
 ];
 
-const heroChips = [
-  "Private proof links",
-  "Pinned spread comments",
-  "Versioned revisions",
-  "CSV feedback export",
-];
-
-const previewDetails = [
+const faqItems = [
   {
-    title: "Secure proof link",
-    description: "Tokenized URL for client review.",
+    question: "Who is Album Approve for?",
+    answer:
+      "Wedding and portrait photographers, album designers, and small studios that send album spreads to clients for review before production.",
   },
   {
-    title: "Pinned comments",
-    description: "Feedback stays on the spread.",
+    question: "How is this different from generic AI tools?",
+    answer:
+      "This is not an AI writing tool. It is a focused album proofing workflow: upload spreads, share a proof link, collect visual comments, manage revisions, and record approval.",
   },
   {
-    title: "Approval record",
-    description: "Decision tied to the version.",
+    question: "What setup is required?",
+    answer:
+      "For the current preview, you can open the workspace and client proof from the site. A live studio rollout should configure private storage, email delivery, billing, rate limits, and a strong app secret.",
+  },
+  {
+    question: "Is my data safe?",
+    answer:
+      "The app uses tokenized proof links, optional proof passwords, signed asset access, and separate dashboard/proof sessions. Use sample albums in the preview until a production deployment is configured for real client work.",
+  },
+  {
+    question: "What happens after I sign up or request access?",
+    answer:
+      "The current CTA opens the workspace preview so you can inspect the album proofing flow. It does not collect payment details on the preview deployment.",
+  },
+  {
+    question: "What does this replace?",
+    answer:
+      "It replaces the parts of album proofing that normally happen across email threads, marked-up PDFs, screenshots, spreadsheets, and manual approval tracking.",
+  },
+  {
+    question: "What does this not do yet?",
+    answer:
+      "It does not generate album designs, automate print ordering, provide a full team permission model, or claim compliance certifications. Those are outside the current product scope.",
   },
 ];
 
@@ -212,15 +265,15 @@ export default function Home() {
       }}
     >
       <nav className="fixed inset-x-0 top-0 z-30 px-3 pt-3 sm:px-5">
-        <div className="mx-auto grid h-14 max-w-7xl grid-cols-[1fr_auto] items-center gap-4 rounded-lg border border-zinc-200/90 bg-white/90 px-4 shadow-[0_1px_1px_rgba(24,24,27,0.04)] backdrop-blur md:grid-cols-[1fr_auto_1fr]">
+        <div className="mx-auto grid h-14 max-w-7xl grid-cols-[1fr_auto] items-center gap-4 rounded-lg border border-zinc-200/90 bg-white/92 px-4 shadow-[0_1px_1px_rgba(24,24,27,0.04)] backdrop-blur md:grid-cols-[1fr_auto_1fr]">
           <Link
             href="/"
             className="justify-self-start"
             aria-label="Album Approve home"
           >
-            <BrandWordmark className="text-[0.9rem] tracking-[0.32em] sm:text-[1.06rem] sm:tracking-[0.4em]" />
+            <BrandWordmark className="text-[0.82rem] tracking-[0.18em] sm:text-[1.05rem] sm:tracking-[0.36em]" />
           </Link>
-          <div className="hidden items-center gap-8 justify-self-center text-sm font-medium text-zinc-600 md:flex">
+          <div className="hidden items-center gap-7 justify-self-center text-sm font-medium text-zinc-600 md:flex">
             {navItems.map((item) => (
               <Link
                 key={item.href}
@@ -242,45 +295,48 @@ export default function Home() {
               asChild
               className="h-10 bg-zinc-950 px-5 text-[0.84rem] text-white shadow-none hover:bg-zinc-800"
             >
-              <Link href="/sign-in">Get Started</Link>
+              <Link href="/proof/demo-proof-token">
+                <span className="sm:hidden">Demo</span>
+                <span className="hidden sm:inline">View Demo Proof</span>
+              </Link>
             </Button>
           </div>
         </div>
       </nav>
 
-      <section className="mx-auto grid max-w-7xl gap-16 px-4 pb-24 pt-36 sm:px-6 sm:pb-32 min-[920px]:min-h-[100svh] min-[920px]:grid-cols-[0.9fr_1.1fr] min-[920px]:items-center lg:px-8">
+      <section className="mx-auto grid max-w-7xl gap-14 px-4 pb-24 pt-36 sm:px-6 sm:pb-32 min-[980px]:min-h-[100svh] min-[980px]:grid-cols-[0.9fr_1.1fr] min-[980px]:items-center lg:px-8">
         <div className="max-w-2xl">
           <Badge
             variant="outline"
-            className="h-7 border-emerald-200 bg-emerald-50 px-3 text-[0.76rem] font-medium text-emerald-700"
+            className="h-7 rounded-md border-teal-200 bg-teal-50 px-3 text-[0.76rem] font-medium text-teal-800"
           >
-            Online album proofing
+            Wedding album proofing for photographers
           </Badge>
           <h1
-            className={`${instrumentSerif.className} mt-7 max-w-[46rem] text-[clamp(2.2rem,5.2vw,4.2rem)] font-normal leading-[1.03] tracking-normal text-zinc-800`}
+            className={`${instrumentSerif.className} mt-7 max-w-[48rem] text-[clamp(2.35rem,5.5vw,4.8rem)] font-normal leading-[1.02] tracking-normal text-zinc-900`}
           >
-            Album proofing without the{" "}
-            <span className="text-emerald-500">email chase.</span>
+            Get wedding albums approved without the email chase.
           </h1>
-          <p className="mt-6 max-w-[55ch] text-base leading-7 text-zinc-500">
-            Upload exported album design files, send one private flip-through
-            proof, and collect precise client comments without account setup or
-            scattered email threads.
+          <p className="mt-6 max-w-[58ch] text-base leading-7 text-zinc-600 sm:text-lg sm:leading-8">
+            Album Approve helps photographers send one polished proof, collect
+            spread-specific client comments, and capture approval before the
+            album goes to print.
           </p>
-          <div className="mt-7 flex flex-wrap gap-2">
-            {heroChips.map((item) => (
-              <span
+          <div className="mt-8 grid max-w-xl gap-2">
+            {proofPromise.map((item) => (
+              <div
                 key={item}
-                className="rounded-full border border-zinc-200 bg-white px-3 py-1 text-xs font-medium text-zinc-500"
+                className="flex items-center gap-3 text-sm font-medium text-zinc-700"
               >
-                {item}
-              </span>
+                <CheckCircle2 className="size-4 text-teal-700" aria-hidden />
+                <span>{item}</span>
+              </div>
             ))}
           </div>
-          <div className="mt-10 flex flex-wrap items-center gap-3">
-            <Button asChild size="lg" className="gap-2 bg-emerald-600 px-5">
-              <Link href="/sign-in">
-                Open workspace
+          <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <Button asChild size="lg" className="gap-2 bg-teal-700 px-5">
+              <Link href="/proof/demo-proof-token">
+                View demo proof
                 <ArrowRight className="size-4" aria-hidden="true" />
               </Link>
             </Button>
@@ -290,25 +346,33 @@ export default function Home() {
               variant="outline"
               className="gap-2 border-zinc-300 bg-white px-5 shadow-none"
             >
-              <Link href="/proof/demo-proof-token">View client proof</Link>
+              <Link href="/sign-up">Try studio workspace</Link>
             </Button>
           </div>
+          <p className="mt-5 max-w-[50ch] text-sm leading-6 text-zinc-500">
+            No payment required for the preview. Use the sample wedding album to
+            inspect the client and studio workflow.
+          </p>
         </div>
 
         <ProductPreview />
       </section>
 
-      <section className="border-y border-zinc-200 bg-white px-4 py-24 sm:px-6 sm:py-32 lg:px-8">
+      <section
+        id="problem"
+        className="border-y border-zinc-200 bg-white px-4 py-24 sm:px-6 sm:py-32 lg:px-8"
+      >
         <div className="mx-auto max-w-7xl">
           <SectionIntro
-            eyebrow="Problem"
-            title="Album review breaks down when feedback leaves the design."
-            description="Album Approve keeps every note, revision, and decision connected to the proof your client is reviewing."
+            eyebrow="The problem"
+            title="Album feedback is too expensive to interpret by hand."
+            description="Your clients are not trying to be difficult. The old workflow gives them too many ways to describe a visual change without keeping that note attached to the spread."
           />
           <div className="mt-10 grid gap-px overflow-hidden rounded-lg border border-zinc-200 bg-zinc-200 md:grid-cols-3">
-            {problemPoints.map((item) => (
+            {painfulWorkflow.map((item) => (
               <article key={item.title} className="bg-white p-6">
-                <h3 className="text-base font-semibold">{item.title}</h3>
+                <XCircle className="size-5 text-zinc-400" aria-hidden />
+                <h3 className="mt-8 text-base font-semibold">{item.title}</h3>
                 <p className="mt-3 text-sm leading-6 text-zinc-600">
                   {item.description}
                 </p>
@@ -319,28 +383,28 @@ export default function Home() {
       </section>
 
       <section
-        id="product"
+        id="workflow"
         className="mx-auto max-w-7xl px-4 py-24 sm:px-6 sm:py-32 lg:px-8"
       >
         <div className="grid gap-10 lg:grid-cols-[0.72fr_1.28fr] lg:items-start">
           <SectionIntro
-            eyebrow="Product"
-            title="A focused review loop from upload to approval."
-            description="The app starts after the album design is ready: upload the exported spreads, share the proof, gather exact feedback, and keep a record of what changed."
+            eyebrow="The workflow"
+            title="A clear path from exported spread to final approval."
+            description="Album Approve starts after the design is ready. It gives the studio a review surface, not another generic project board."
           />
-          <div className="grid gap-px overflow-hidden rounded-lg border border-zinc-200 bg-zinc-200 md:grid-cols-4">
-            {workflow.map((item, index) => {
+          <div className="grid gap-px overflow-hidden rounded-lg border border-zinc-200 bg-zinc-200 md:grid-cols-3">
+            {solutionSteps.map((item, index) => {
               const Icon = item.icon;
               return (
-                <article key={item.title} className="bg-[#fbfaf7] p-5">
+                <article key={item.title} className="bg-[#fbfaf7] p-6">
                   <div className="flex items-center justify-between gap-3">
-                    <Icon className="size-5 text-emerald-600" aria-hidden />
+                    <Icon className="size-5 text-teal-700" aria-hidden />
                     <span className="text-xs font-semibold text-zinc-400">
                       0{index + 1}
                     </span>
                   </div>
                   <h3 className="mt-8 text-base font-semibold">{item.title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-zinc-600">
+                  <p className="mt-3 text-sm leading-6 text-zinc-600">
                     {item.description}
                   </p>
                 </article>
@@ -353,11 +417,11 @@ export default function Home() {
       <section className="border-y border-zinc-200 bg-white px-4 py-24 sm:px-6 sm:py-32 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <SectionIntro
-            eyebrow="Use cases"
-            title="Built around the moments studios repeat."
-            description="Album Approve is intentionally narrow: final album proofs, client comments, revision rounds, and production handoff."
+            eyebrow="Core benefits"
+            title="Less translation work between client, studio, and production."
+            description="The value is not more software. The value is fewer revision mistakes, fewer follow-up emails, and a cleaner decision record."
           />
-          <IconGrid items={useCases} className="mt-10 md:grid-cols-3" />
+          <IconGrid items={coreBenefits} className="mt-10 md:grid-cols-2" />
         </div>
       </section>
 
@@ -366,7 +430,7 @@ export default function Home() {
           <div className="overflow-hidden rounded-lg border border-zinc-200 bg-white p-2 shadow-[0_18px_55px_rgba(24,24,27,0.07)]">
             <Image
               src="/proofalbum-proofing.png"
-              alt="Album Approve proof page showing album spread review and comment controls"
+              alt="Album Approve client proof page showing a wedding album spread with comments and decision controls"
               width={1600}
               height={1000}
               className="aspect-[16/10] w-full rounded-md object-cover object-top"
@@ -374,8 +438,8 @@ export default function Home() {
           </div>
           <SectionIntro
             eyebrow="Client experience"
-            title="One private link. No training required."
-            description="Clients move spread by spread, click the part of the layout that needs attention, and submit approval when the album is ready."
+            title="Clients review the album where the album actually is."
+            description="They can flip through the spreads, zoom in for detail, click the layout to place a note, and submit either approval or a change request."
           />
         </div>
       </section>
@@ -383,67 +447,178 @@ export default function Home() {
       <section className="border-y border-zinc-200 bg-white px-4 py-24 sm:px-6 sm:py-32 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <SectionIntro
-            eyebrow="Architecture and features"
-            title="Review features with clear server boundaries."
-            description="Server Actions handle mutations, data access is centralized, and external services are isolated behind server modules so the app can run locally and move toward hosted infrastructure."
+            eyebrow="Use cases"
+            title="Built for the album review moments studios repeat every week."
+            description="This is intentionally narrow. It is for album proofing, revision tracking, and approval handoff."
           />
           <IconGrid
-            items={architectureFeatures}
-            className="mt-10 md:grid-cols-3"
+            items={useCases}
+            className="mt-10 md:grid-cols-2 lg:grid-cols-4"
           />
         </div>
       </section>
 
-      <section
-        id="security"
-        className="mx-auto max-w-7xl px-4 py-24 sm:px-6 sm:py-32 lg:px-8"
-      >
-        <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
+      <section className="mx-auto max-w-7xl px-4 py-24 sm:px-6 sm:py-32 lg:px-8">
+        <div className="grid gap-10 lg:grid-cols-[0.78fr_1.22fr] lg:items-start">
           <SectionIntro
-            eyebrow="Security and trust"
-            title="Private proofs, scoped access, and auditable decisions."
-            description="The security model keeps dashboard users and proof guests separate while avoiding direct exposure of storage keys."
+            eyebrow="Why this"
+            title="This solves the review surface, not just the admin around it."
+            description="Generic tools can help after feedback exists. Album Approve is where the client creates clear feedback in the first place."
           />
-          <IconGrid items={securityFeatures} className="md:grid-cols-3" />
+          <div className="grid gap-px overflow-hidden rounded-lg border border-zinc-200 bg-zinc-200 md:grid-cols-2">
+            {differentiation.map((item) => (
+              <article key={item.question} className="bg-[#fbfaf7] p-6">
+                <h3 className="text-base font-semibold">{item.question}</h3>
+                <p className="mt-3 text-sm leading-6 text-zinc-600">
+                  {item.answer}
+                </p>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 
       <section
-        id="integrations"
+        id="trust"
         className="border-y border-zinc-200 bg-white px-4 py-24 sm:px-6 sm:py-32 lg:px-8"
       >
         <div className="mx-auto max-w-7xl">
           <SectionIntro
-            eyebrow="Workflow inputs and service boundaries"
-            title="Connects where the review workflow actually needs it."
-            description="Keep handoff simple with file imports, CSV export, tokenized proof links, and isolated service boundaries for data, billing, email, and private storage."
+            eyebrow="Trust"
+            title="Built for private album review, with clear preview limits."
+            description="Client proofs use tokenized links, optional passwords, signed asset access, and separate guest review sessions. Use the public preview with sample albums until a production deployment is configured for real client work."
           />
           <IconGrid
-            items={integrationBoundaries}
-            className="mt-10 md:grid-cols-2 lg:grid-cols-3"
+            items={trustSignals}
+            className="mt-10 md:grid-cols-2 lg:grid-cols-4"
           />
         </div>
       </section>
 
-      <section className="px-4 py-24 sm:px-6 sm:py-32 lg:px-8">
-        <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 rounded-lg border border-zinc-200 bg-zinc-950 p-6 text-white shadow-[0_18px_50px_rgba(24,24,27,0.12)] sm:p-8 md:flex-row md:items-center">
+      <section
+        id="access"
+        className="mx-auto max-w-7xl px-4 py-24 sm:px-6 sm:py-32 lg:px-8"
+      >
+        <div className="grid gap-10 lg:grid-cols-[0.78fr_1.22fr] lg:items-start">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-300">
-              Studio workspace
+            <SectionIntro
+              eyebrow="Pricing and access"
+              title="Preview the workflow first. Pay only for a configured studio rollout."
+              description="The intended plan structure is shown here, but this deployment is for evaluation. Open the workspace, review the sample album, and confirm whether the proofing loop fits your studio before payment is collected."
+            />
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+              {/* Until a sales intake form is wired, route interested studios to the existing workspace preview. */}
+              <Button asChild size="lg" className="gap-2 bg-teal-700 px-5">
+                <Link href="/sign-up">
+                  Try studio workspace
+                  <ArrowRight className="size-4" aria-hidden="true" />
+                </Link>
+              </Button>
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+                className="gap-2 border-zinc-300 bg-white px-5 shadow-none"
+              >
+                <Link href="/pricing">Review plan structure</Link>
+              </Button>
+            </div>
+            <p className="mt-5 max-w-xl text-sm leading-6 text-zinc-500">
+              Preview note: do not upload real client work here unless the
+              deployment is configured with private storage, email, billing, and
+              rate limits.
+            </p>
+          </div>
+          <div className="grid gap-px overflow-hidden rounded-lg border border-zinc-200 bg-zinc-200 md:grid-cols-3">
+            {pricingPlans.map((plan) => (
+              <article
+                key={plan.name}
+                className={`bg-white p-6 ${
+                  plan.featured ? "shadow-[inset_0_0_0_1px_#0f766e]" : ""
+                }`}
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <h3 className="text-base font-semibold">{plan.name}</h3>
+                  {plan.featured ? (
+                    <Badge className="rounded-md bg-teal-700 text-white">
+                      Common
+                    </Badge>
+                  ) : null}
+                </div>
+                <p className="mt-4 text-3xl font-semibold text-zinc-950">
+                  {plan.price}
+                </p>
+                <p className="mt-3 min-h-12 text-sm leading-6 text-zinc-600">
+                  {plan.description}
+                </p>
+                <ul className="mt-6 space-y-3 text-sm text-zinc-600">
+                  {plan.features.map((feature) => (
+                    <li key={feature} className="flex gap-2">
+                      <CheckCircle2
+                        className="mt-0.5 size-4 shrink-0 text-teal-700"
+                        aria-hidden
+                      />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="faq"
+        className="border-y border-zinc-200 bg-white px-4 py-24 sm:px-6 sm:py-32 lg:px-8"
+      >
+        <div className="mx-auto max-w-7xl">
+          <SectionIntro
+            eyebrow="FAQ"
+            title="Straight answers before you trust this with client work."
+            description="Use the preview to judge the proofing workflow. Production use should be configured before this replaces your current client album process."
+          />
+          <div className="mt-10 grid gap-px overflow-hidden rounded-lg border border-zinc-200 bg-zinc-200 lg:grid-cols-2">
+            {faqItems.map((item) => (
+              <article key={item.question} className="bg-white p-6">
+                <h3 className="text-base font-semibold">{item.question}</h3>
+                <p className="mt-3 text-sm leading-6 text-zinc-600">
+                  {item.answer}
+                </p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="px-4 py-24 sm:px-6 sm:py-32 lg:px-8">
+        <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-8 rounded-lg border border-zinc-200 bg-zinc-950 p-6 text-white shadow-[0_18px_50px_rgba(24,24,27,0.12)] sm:p-8 md:flex-row md:items-center">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-teal-300">
+              Ready to inspect the workflow?
             </p>
             <h2
-              className={`${instrumentSerif.className} mt-4 max-w-3xl text-[clamp(1.8rem,3vw,2.6rem)] font-normal leading-[1.08] tracking-normal`}
+              className={`${instrumentSerif.className} mt-4 max-w-3xl text-[clamp(1.8rem,3vw,2.75rem)] font-normal leading-[1.08] tracking-normal`}
             >
-              Open the workspace, upload album design files, and share a
-              flippable proof with comments.
+              Open the sample proof, then view the studio workspace behind it.
             </h2>
           </div>
-          <Button asChild size="lg" className="gap-2 bg-white text-zinc-950">
-            <Link href="/sign-in">
-              Continue to workspace
-              <ArrowRight className="size-4" aria-hidden="true" />
-            </Link>
-          </Button>
+          <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+            <Button asChild size="lg" className="gap-2 bg-white text-zinc-950">
+              <Link href="/proof/demo-proof-token">
+                View demo proof
+                <ArrowRight className="size-4" aria-hidden="true" />
+              </Link>
+            </Button>
+            <Button
+              asChild
+              size="lg"
+              variant="outline"
+              className="gap-2 border-white/25 bg-transparent text-white hover:bg-white hover:text-zinc-950"
+            >
+              <Link href="/sign-up">Try workspace</Link>
+            </Button>
+          </div>
         </div>
       </section>
 
@@ -459,7 +634,7 @@ export default function Home() {
 
 function ProductPreview() {
   return (
-    <div className="min-[920px]:pt-24">
+    <div className="min-[980px]:pt-20">
       <div className="overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-[0_18px_55px_rgba(24,24,27,0.08)]">
         <div className="flex h-9 items-center gap-2 border-b border-zinc-200 bg-zinc-50 px-4">
           <span className="size-2.5 rounded-full bg-zinc-300" />
@@ -479,18 +654,40 @@ function ProductPreview() {
         />
       </div>
       <div className="mt-3 grid gap-3 sm:grid-cols-3">
-        {previewDetails.map((item) => (
-          <div
-            key={item.title}
-            className="rounded-lg border border-zinc-200 bg-white px-4 py-3"
-          >
-            <p className="text-sm font-semibold tracking-tight">{item.title}</p>
-            <p className="mt-1 text-xs leading-5 text-zinc-500">
-              {item.description}
-            </p>
-          </div>
-        ))}
+        <PreviewDetail
+          title="Open"
+          description="The client reviews the album from one private link."
+          icon={Link2}
+        />
+        <PreviewDetail
+          title="Comment"
+          description="Notes stay attached to the spread they describe."
+          icon={MessageSquareText}
+        />
+        <PreviewDetail
+          title="Approve"
+          description="The decision is tied to the reviewed version."
+          icon={CheckCircle2}
+        />
       </div>
+    </div>
+  );
+}
+
+function PreviewDetail({
+  title,
+  description,
+  icon: Icon,
+}: {
+  title: string;
+  description: string;
+  icon: React.ComponentType<{ className?: string; "aria-hidden"?: boolean }>;
+}) {
+  return (
+    <div className="rounded-lg border border-zinc-200 bg-white px-4 py-3">
+      <Icon className="size-4 text-teal-700" aria-hidden />
+      <p className="mt-3 text-sm font-semibold">{title}</p>
+      <p className="mt-1 text-xs leading-5 text-zinc-500">{description}</p>
     </div>
   );
 }
@@ -506,15 +703,15 @@ function SectionIntro({
 }) {
   return (
     <div className="max-w-3xl">
-      <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-600">
+      <p className="text-xs font-semibold uppercase tracking-[0.22em] text-teal-700">
         {eyebrow}
       </p>
       <h2
-        className={`${instrumentSerif.className} mt-4 text-[clamp(1.5rem,3vw,2.4rem)] font-normal leading-[1.1] tracking-normal text-zinc-800`}
+        className={`${instrumentSerif.className} mt-4 text-[clamp(1.55rem,3vw,2.55rem)] font-normal leading-[1.1] tracking-normal text-zinc-900`}
       >
         {title}
       </h2>
-      <p className="mt-5 max-w-2xl text-[0.95rem] leading-7 text-zinc-500">
+      <p className="mt-5 max-w-2xl text-[0.98rem] leading-7 text-zinc-600">
         {description}
       </p>
     </div>

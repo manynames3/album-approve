@@ -27,14 +27,14 @@ export default function PricingPage() {
             variant="outline"
             className="border-teal-200 bg-teal-50 text-teal-800"
           >
-            Billing-ready demo
+            Studio pricing
           </Badge>
           <h1 className="mt-4 text-4xl font-semibold tracking-tight">
             Pricing for album approvals
           </h1>
           <p className="mt-3 text-zinc-600">
-            Plan constants are shared with the billing integration so usage
-            gates and Stripe checkout stay aligned.
+            Choose a plan based on active album volume, private storage, and
+            branding needs.
           </p>
         </div>
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
