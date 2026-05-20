@@ -2,6 +2,10 @@
 
 Album Approve is a full-stack album proofing SaaS demo for photographers. It lets a studio create client album projects, upload spreads, share secure proofing links, collect pinned comments, manage revisions, export feedback, and record final approvals in one workflow.
 
+## TLDR
+
+Album Approve is a recruiter-ready Next.js SaaS portfolio project for wedding and portrait photographers who need a private, client-friendly album proofing workflow. It demonstrates secure guest proof links, signed private asset delivery, pinned visual comments, revision decisions, Stripe/Resend/Supabase integration boundaries, seeded demo data, automated tests, architecture docs, and a Cloudflare Workers deployment path.
+
 ## Demo
 
 Live demo: [album-approve.hangi87.workers.dev](https://album-approve.hangi87.workers.dev)
