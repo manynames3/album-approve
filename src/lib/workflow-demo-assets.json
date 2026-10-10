@@ -1,0 +1,46 @@
+{
+  "desktop": {
+    "src": "/product/workflow-demo-desktop.mp4",
+    "poster": "/product/workflow-demo-desktop-poster.webp",
+    "captions": "/product/workflow-demo-desktop.vtt",
+    "width": 1440,
+    "height": 1000,
+    "chapters": [
+      {
+        "id": "upload",
+        "start": 0
+      },
+      {
+        "id": "feedback",
+        "start": 6.57
+      },
+      {
+        "id": "approval",
+        "start": 14.98
+      }
+    ],
+    "duration": 24.17
+  },
+  "mobile": {
+    "src": "/product/workflow-demo-mobile.mp4",
+    "poster": "/product/workflow-demo-mobile-poster.webp",
+    "captions": "/product/workflow-demo-mobile.vtt",
+    "width": 390,
+    "height": 844,
+    "chapters": [
+      {
+        "id": "upload",
+        "start": 0
+      },
+      {
+        "id": "feedback",
+        "start": 6.87
+      },
+      {
+        "id": "approval",
+        "start": 15.92
+      }
+    ],
+    "duration": 25.2
+  }
+}

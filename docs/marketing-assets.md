@@ -1,25 +1,40 @@
 # Product walkthrough assets
 
-The homepage walkthrough uses actual browser captures of the fictional sample
-workspace, not a mock interface. Desktop and mobile captures show file selection,
-a pinned image-swap comment, and the version-specific approval confirmation.
-The capture does not submit uploads or approvals.
+The homepage walkthrough plays actual recordings of a fictional client album,
+not an animated mock interface. The desktop recording is shown at every screen
+size, scaling proportionally without cropping; native fullscreen allows a closer
+look. It shows four spreads being uploaded, a pinned comment being saved, and a
+version-specific approval being confirmed. A mobile recording is retained as a
+reference asset but is not used on the homepage. The studio resolves the saved note between the comment
+and approval scenes; that handoff is omitted from the short recording.
 
 Start a local sample workspace, then run:
 
 ```sh
 PROOFALBUM_STORAGE=memory npm run dev
-node scripts/capture-workflow-assets.mjs
+node scripts/record-workflow-demo.mjs
 ```
 
 The capture requires an existing Playwright installation and its Chromium browser.
 `PLAYWRIGHT_MODULE` can point to a bundled Playwright module without adding a project
 dependency. Set `BROWSER_CHANNEL=chrome` to use an installed Chrome browser.
 `BASE_URL` defaults to `http://localhost:3000` and only accepts loopback hosts.
-Captures are optimized WebP files in `public/product/workflow-*`.
+The video recorder also needs local `ffmpeg`. It creates two H.264 MP4s with
+fast-start metadata, WebP posters, English descriptive caption tracks, and a
+chapter manifest in `src/lib/workflow-demo-assets.json`. It creates fictional
+projects and submits real uploads, comments, resolutions, and approvals only
+against the local workspace. Raw recordings stay outside the repo under `/tmp`.
+Restart memory mode afterward to clear these projects. The older non-mutating
+`scripts/capture-workflow-assets.mjs` still produces static reference screenshots.
+
+Playback is deferred until the section enters the viewport. Reduced-motion and
+data-saving visitors see a still poster until they choose to play. Autoplay is
+silent, offscreen playback pauses, and native video controls provide seeking and
+fullscreen alongside the chapter, play/pause, and replay buttons. Failed video
+loads retain a poster and a working link to the interactive proof.
 
 Run `node scripts/verify-marketing.mjs` against the local production preview to
-check homepage pricing, all three responsive screenshot panels, keyboard tabs,
+check homepage pricing, decoded frames in all three video chapters, playback and keyboard controls,
 overflow at 1440/768/390/320px, and the demo visit-to-comment flow. This check saves
 one test comment in the local sample workspace; restart memory mode afterward to
 restore the untouched demo. It accepts the same browser environment variables.
