@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { DEMO_ALBUM_ASSETS, getDemoAlbumAsset, upgradeDemoSpread } from "./demo-album";
+import {
+  DEMO_ALBUM_ASSETS,
+  getDemoAlbumAsset,
+  upgradeDemoSpread,
+} from "./demo-album";
 import type { Spread } from "@/server/types";
 
 const spread: Spread = {

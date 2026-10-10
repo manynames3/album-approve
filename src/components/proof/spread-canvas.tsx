@@ -38,7 +38,9 @@ export function SpreadCanvas({
   onPlacePin,
   onSelectPin,
 }: SpreadCanvasProps) {
-  const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [status, setStatus] = useState<"loading" | "ready" | "error">(
+    "loading",
+  );
 
   function placePin(event: MouseEvent<HTMLButtonElement>) {
     const rect = event.currentTarget.getBoundingClientRect();
@@ -46,8 +48,14 @@ export function SpreadCanvas({
       event.detail === 0
         ? { x: 0.5, y: 0.5 }
         : {
-            x: Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width)),
-            y: Math.max(0, Math.min(1, (event.clientY - rect.top) / rect.height)),
+            x: Math.max(
+              0,
+              Math.min(1, (event.clientX - rect.left) / rect.width),
+            ),
+            y: Math.max(
+              0,
+              Math.min(1, (event.clientY - rect.top) / rect.height),
+            ),
           },
     );
   }
@@ -71,16 +79,28 @@ export function SpreadCanvas({
         className="block h-auto w-full select-none"
       />
       {status === "loading" ? (
-        <div role="status" className="absolute inset-0 flex items-center justify-center bg-zinc-50">
+        <div
+          role="status"
+          className="absolute inset-0 flex items-center justify-center bg-zinc-50"
+        >
           <Loader2 className="size-5 animate-spin text-zinc-400" aria-hidden />
           <span className="sr-only">Loading album spread</span>
         </div>
       ) : null}
       {status === "error" ? (
-        <div role="alert" className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-zinc-50 p-4 text-center">
+        <div
+          role="alert"
+          className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-zinc-50 p-4 text-center"
+        >
           <ImageOff className="size-6 text-zinc-400" aria-hidden />
-          <p className="text-sm text-zinc-600">This spread could not be loaded.</p>
-          <Button type="button" variant="outline" onClick={() => window.location.reload()}>
+          <p className="text-sm text-zinc-600">
+            This spread could not be loaded.
+          </p>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => window.location.reload()}
+          >
             Reload proof
           </Button>
         </div>
@@ -127,7 +147,9 @@ export function SpreadCanvas({
             top: "clamp(14px, " + draftPin.y * 100 + "%, calc(100% - 14px))",
           }}
         >
-          <span className="text-base" aria-hidden>+</span>
+          <span className="text-base" aria-hidden>
+            +
+          </span>
           <span className="sr-only">New comment location</span>
         </span>
       ) : null}

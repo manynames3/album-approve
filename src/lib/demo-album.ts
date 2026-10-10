@@ -7,7 +7,8 @@ export const DEMO_ALBUM_ASSETS = assets;
 // must keep using the signed private asset route, even if their IDs match the seed.
 export function getDemoAlbumAsset(storageKey: string) {
   return assets.find(
-    (asset) => asset.storageKey === storageKey || asset.legacyKey === storageKey,
+    (asset) =>
+      asset.storageKey === storageKey || asset.legacyKey === storageKey,
   );
 }
 

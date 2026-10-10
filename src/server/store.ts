@@ -1,5 +1,9 @@
 import path from "node:path";
-import { DEMO_ALBUM_ASSETS, getDemoAlbumAsset, upgradeDemoSpread } from "@/lib/demo-album";
+import {
+  DEMO_ALBUM_ASSETS,
+  getDemoAlbumAsset,
+  upgradeDemoSpread,
+} from "@/lib/demo-album";
 import {
   createId,
   createShareToken,

@@ -383,8 +383,16 @@ export function SpreadManager({
 function ReplaceButton({ filename }: { filename: string }) {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" variant="outline" aria-label={`Replace ${filename}`} disabled={pending}>
-      <RefreshCw className={`size-4 ${pending ? "animate-spin" : ""}`} aria-hidden="true" />
+    <Button
+      type="submit"
+      variant="outline"
+      aria-label={`Replace ${filename}`}
+      disabled={pending}
+    >
+      <RefreshCw
+        className={`size-4 ${pending ? "animate-spin" : ""}`}
+        aria-hidden="true"
+      />
       {pending ? "Saving..." : "Replace"}
     </Button>
   );

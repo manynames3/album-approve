@@ -10,7 +10,7 @@
     "thumbnailSrc": "/demo/maya-liam/opening-thumb.webp",
     "width": 1774,
     "height": 887,
-    "sizeBytes": 1935616
+    "sizeBytes": 180738
   },
   {
     "name": "ceremony",
@@ -23,7 +23,7 @@
     "thumbnailSrc": "/demo/maya-liam/ceremony-thumb.webp",
     "width": 1774,
     "height": 887,
-    "sizeBytes": 2458142
+    "sizeBytes": 281446
   },
   {
     "name": "portraits",
@@ -36,7 +36,7 @@
     "thumbnailSrc": "/demo/maya-liam/portraits-thumb.webp",
     "width": 1774,
     "height": 887,
-    "sizeBytes": 2338430
+    "sizeBytes": 244530
   },
   {
     "name": "reception",
@@ -49,6 +49,6 @@
     "thumbnailSrc": "/demo/maya-liam/reception-thumb.webp",
     "width": 1774,
     "height": 887,
-    "sizeBytes": 2211408
+    "sizeBytes": 218380
   }
 ]

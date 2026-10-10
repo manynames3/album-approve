@@ -40,7 +40,9 @@ describe("ProofAlbum demo store", () => {
     expect(proof?.project.id).toBe("project_harper_album");
     expect(proof?.spreads).toHaveLength(4);
     expect(proof?.spreads[0].signedUrl).toBe("/demo/maya-liam/opening.webp");
-    expect(proof?.spreads[0].thumbnailUrl).toBe("/demo/maya-liam/opening-thumb.webp");
+    expect(proof?.spreads[0].thumbnailUrl).toBe(
+      "/demo/maya-liam/opening-thumb.webp",
+    );
   });
 
   it("rejects comments for spreads outside the proof link", async () => {
@@ -112,7 +114,10 @@ describe("ProofAlbum demo store", () => {
     ).toBe(false);
   });
   it("keeps a replacement of a public sample private and persists its dimensions", async () => {
-    const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jOa0AAAAASUVORK5CYII=", "base64");
+    const png = Buffer.from(
+      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jOa0AAAAASUVORK5CYII=",
+      "base64",
+    );
     const file = new File([png], "replacement.png", { type: "image/png" });
     await replaceSpread(DEMO_USER_ID, {
       projectId: "project_harper_album",
@@ -136,5 +141,4 @@ describe("ProofAlbum demo store", () => {
     expect(updated?.spreads[0].storageKey).not.toBe(firstKey);
     expect(updated?.spreads[0].signedUrl).not.toBe(proof?.spreads[0].signedUrl);
   });
-
 });

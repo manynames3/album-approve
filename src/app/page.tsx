@@ -308,28 +308,50 @@ export default function Home() {
 
       <section className="mx-auto max-w-7xl px-4 pt-24 pb-20 sm:px-6 sm:pt-40 sm:pb-28 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
-          <p className="text-xs font-medium text-teal-700">Wedding album proofing for photographers</p>
-          <h1 className={`${instrumentSerif.className} mt-4 text-[36px] font-normal leading-[1.06] tracking-normal text-zinc-900 sm:text-[56px] lg:text-[64px]`}>
-            Album approvals.<br /> Without the email chase.
+          <p className="text-xs font-medium text-teal-700">
+            Wedding album proofing for photographers
+          </p>
+          <h1
+            className={`${instrumentSerif.className} mt-4 text-[36px] font-normal leading-[1.06] tracking-normal text-zinc-900 sm:text-[56px] lg:text-[64px]`}
+          >
+            Album approvals.
+            <br /> Without the email chase.
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-zinc-500">
-            Share wedding album designs in one link. Collect precise client feedback
-            and record approval before print.
+            Share wedding album designs in one link. Collect precise client
+            feedback and record approval before print.
           </p>
           <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
             <Button asChild size="lg" className="gap-2 bg-teal-700 px-5">
-              <Link href="/proof/demo-proof-token">View demo proof <ArrowRight className="size-4" aria-hidden /></Link>
+              <Link href="/proof/demo-proof-token">
+                View demo proof <ArrowRight className="size-4" aria-hidden />
+              </Link>
             </Button>
-            <Button asChild size="lg" variant="outline" className="h-8 border-transparent bg-white px-5 text-zinc-600 shadow-none sm:h-10 sm:border-zinc-200">
+            <Button
+              asChild
+              size="lg"
+              variant="outline"
+              className="h-8 border-transparent bg-white px-5 text-zinc-600 shadow-none sm:h-10 sm:border-zinc-200"
+            >
               <Link href="/sign-up">Try studio workspace</Link>
             </Button>
           </div>
-          <p className="mt-4 text-xs leading-5 text-zinc-400">No payment required. Sample files only.</p>
+          <p className="mt-4 text-xs leading-5 text-zinc-400">
+            No payment required. Sample files only.
+          </p>
         </div>
         <div className="mx-auto mt-6 max-w-6xl sm:mt-16">
           <SampleAlbumPreview />
           <div className="mt-6 flex flex-wrap justify-center gap-x-8 gap-y-2">
-            {proofPromise.map((item) => <span key={item} className="flex items-center gap-2 text-xs text-zinc-500"><CheckCircle2 className="size-3.5 text-teal-700" aria-hidden />{item}</span>)}
+            {proofPromise.map((item) => (
+              <span
+                key={item}
+                className="flex items-center gap-2 text-xs text-zinc-500"
+              >
+                <CheckCircle2 className="size-3.5 text-teal-700" aria-hidden />
+                {item}
+              </span>
+            ))}
           </div>
         </div>
       </section>
@@ -346,7 +368,10 @@ export default function Home() {
           />
           <div className="mt-10 grid gap-8 md:grid-cols-3">
             {painfulWorkflow.map((item) => (
-              <article key={item.title} className="border-t border-zinc-200 pt-6">
+              <article
+                key={item.title}
+                className="border-t border-zinc-200 pt-6"
+              >
                 <XCircle className="size-5 text-zinc-400" aria-hidden />
                 <h3 className="mt-4 text-base font-semibold">{item.title}</h3>
                 <p className="mt-3 text-sm leading-6 text-zinc-600">
@@ -372,7 +397,10 @@ export default function Home() {
             {solutionSteps.map((item, index) => {
               const Icon = item.icon;
               return (
-                <article key={item.title} className="border-t border-zinc-200 pt-6">
+                <article
+                  key={item.title}
+                  className="border-t border-zinc-200 pt-6"
+                >
                   <div className="flex items-center justify-between gap-3">
                     <Icon className="size-5 text-teal-700" aria-hidden />
                     <span className="text-xs font-semibold text-zinc-400">
@@ -412,7 +440,9 @@ export default function Home() {
               unoptimized
               className="h-auto w-full border border-zinc-200 shadow-[0_10px_36px_rgba(24,24,27,0.06)]"
             />
-            <figcaption className="mt-3 text-xs text-zinc-400">Portraits from the generated sample wedding album.</figcaption>
+            <figcaption className="mt-3 text-xs text-zinc-400">
+              Portraits from the generated sample wedding album.
+            </figcaption>
           </figure>
           <SectionIntro
             eyebrow="Client experience"
@@ -445,7 +475,10 @@ export default function Home() {
           />
           <div className="grid gap-8 md:grid-cols-2">
             {differentiation.map((item) => (
-              <article key={item.question} className="border-t border-zinc-200 pt-6">
+              <article
+                key={item.question}
+                className="border-t border-zinc-200 pt-6"
+              >
                 <h3 className="text-base font-semibold">{item.question}</h3>
                 <p className="mt-3 text-sm leading-6 text-zinc-600">
                   {item.answer}
@@ -558,7 +591,10 @@ export default function Home() {
           />
           <div className="mt-10 grid gap-8 lg:grid-cols-2">
             {faqItems.map((item) => (
-              <article key={item.question} className="border-t border-zinc-200 pt-6">
+              <article
+                key={item.question}
+                className="border-t border-zinc-200 pt-6"
+              >
                 <h3 className="text-base font-semibold">{item.question}</h3>
                 <p className="mt-3 text-sm leading-6 text-zinc-600">
                   {item.answer}
@@ -648,9 +684,7 @@ function IconGrid({
   className?: string;
 }) {
   return (
-    <div
-      className={`grid gap-8 ${className || ""}`}
-    >
+    <div className={`grid gap-8 ${className || ""}`}>
       {items.map((item) => {
         const Icon = item.icon;
         return (
