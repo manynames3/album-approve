@@ -108,6 +108,7 @@ try {
   await page.keyboard.press("Escape");
   await page.getByRole("dialog").waitFor({ state: "hidden" });
   assert(await page.getByRole("button", { name: "Full screen", exact: true }).isVisible());
+  await page.waitForFunction(() => document.activeElement?.getAttribute("aria-label") === "Full screen");
   report.checks.push("Full-screen zoom, fit, Escape, and focus return work");
 
   const image = page.locator("[data-spread-canvas] img");

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { useFormStatus } from "react-dom";
 import {
   Check, CheckCircle2, ChevronLeft, ChevronRight, Maximize2,
@@ -34,12 +34,17 @@ export function ProofViewer({ proof, token, defaultName, defaultEmail, submitted
   const [draftPin, setDraftPin] = useState<SpreadPin | null>(null);
   const [composerOpen, setComposerOpen] = useState(false);
   const [selectedComment, setSelectedComment] = useState<string | null>(null);
-  const [clientName, setClientName] = useState(defaultName);
-  const [clientEmail, setClientEmail] = useState(defaultEmail);
+  const [fallbackIdentity, setFallbackIdentity] = useState({ name: defaultName, email: defaultEmail });
   const [decision, setDecision] = useState<ApprovalDecision>("approved");
   const [decisionOpen, setDecisionOpen] = useState(false);
   const composerRef = useRef<HTMLTextAreaElement>(null);
   const identityKey = "album-approve.reviewer." + proof.project.id;
+  const storedIdentity = useSyncExternalStore(
+    subscribeReviewerIdentity,
+    () => { try { return localStorage.getItem(identityKey); } catch { return null; } },
+    () => null,
+  );
+  const { name: clientName, email: clientEmail } = parseReviewerIdentity(storedIdentity, fallbackIdentity);
 
   const activeSpread = proof.spreads[activeIndex] || proof.spreads[0];
   const activeComments = proof.comments
@@ -56,21 +61,12 @@ export function ProofViewer({ proof, token, defaultName, defaultEmail, submitted
   const unresolvedCount = proof.comments.filter((comment) => !comment.resolvedAt).length;
   const isSampleAlbum = proof.spreads.some((spread) => getDemoAlbumAsset(spread.storageKey));
 
-  useEffect(() => {
-    // Restore browser-only identity after hydration; storage can be blocked in private browsers.
-    try {
-      const saved = JSON.parse(localStorage.getItem(identityKey) || "null");
-      if (typeof saved?.name === "string" && typeof saved?.email === "string") {
-        setClientName(saved.name);
-        setClientEmail(saved.email);
-      }
-    } catch {}
-  }, [identityKey]);
-
   function changeIdentity(name: string, email: string) {
-    setClientName(name);
-    setClientEmail(email);
-    try { localStorage.setItem(identityKey, JSON.stringify({ name, email })); } catch {}
+    setFallbackIdentity({ name, email });
+    try {
+      localStorage.setItem(identityKey, JSON.stringify({ name, email }));
+      window.dispatchEvent(new Event("album-approve:reviewer"));
+    } catch {}
   }
 
   useEffect(() => {
@@ -271,7 +267,7 @@ export function ProofViewer({ proof, token, defaultName, defaultEmail, submitted
             {activeComments.length ? (
               <ol className="space-y-5">
                 {activeComments.map((comment, index) => (
-                  <li key={comment.id} id={"comment-" + comment.id} className={"rounded-md p-2 -mx-2 " + (selectedComment === comment.id ? "bg-teal-50 ring-1 ring-teal-200" : "")}>
+                  <li key={comment.id} id={"comment-" + comment.id} tabIndex={-1} className={"rounded-md p-2 -mx-2 " + (selectedComment === comment.id ? "bg-teal-50 ring-1 ring-teal-200" : "")}>
                     <div className="flex items-start gap-2">
                       {comment.x !== undefined && comment.y !== undefined ? (
                         <button type="button" title="Select this comment pin" aria-label={"Select comment " + (index + 1)} className="flex size-5 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-[10px] font-medium" onClick={() => setSelectedComment(comment.id)}>{index + 1}</button>
@@ -299,7 +295,14 @@ export function ProofViewer({ proof, token, defaultName, defaultEmail, submitted
       </div>
 
       <Dialog open={fullScreen} onOpenChange={(open) => { setFullScreen(open); setZoom(1); }}>
-        <DialogContent showCloseButton={false} className="inset-0 top-0 left-0 flex h-[100dvh] w-screen max-w-none translate-x-0 translate-y-0 flex-col gap-0 rounded-none bg-zinc-50 p-3 sm:max-w-none sm:p-6">
+        <DialogContent showCloseButton={false} onCloseAutoFocus={(event) => {
+          event.preventDefault();
+          requestAnimationFrame(() => {
+            if (composerOpen) composerRef.current?.focus();
+            else if (selectedComment) document.getElementById("comment-" + selectedComment)?.focus();
+            else document.querySelector<HTMLButtonElement>('[data-proof-root] button[aria-label="Full screen"]')?.focus();
+          });
+        }} className="inset-0 top-0 left-0 flex h-[100dvh] w-screen max-w-none translate-x-0 translate-y-0 flex-col gap-0 rounded-none bg-zinc-50 p-3 sm:max-w-none sm:p-6">
           <DialogTitle className="sr-only">{proof.project.title} full screen</DialogTitle>
           <DialogDescription className="sr-only">Album spread detail view.</DialogDescription>
           {albumSurface}
@@ -414,4 +417,21 @@ function AlbumSurface({ spread, projectTitle, index, count, zoom, fullScreen, pi
       </div>
     </div>
   );
+}
+
+function subscribeReviewerIdentity(listener: () => void) {
+  window.addEventListener("storage", listener);
+  window.addEventListener("album-approve:reviewer", listener);
+  return () => {
+    window.removeEventListener("storage", listener);
+    window.removeEventListener("album-approve:reviewer", listener);
+  };
+}
+
+function parseReviewerIdentity(serialized: string | null, fallback: { name: string; email: string }) {
+  try {
+    const saved = JSON.parse(serialized || "null");
+    if (typeof saved?.name === "string" && typeof saved?.email === "string") return saved;
+  } catch {}
+  return fallback;
 }
