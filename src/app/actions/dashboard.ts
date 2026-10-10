@@ -149,8 +149,10 @@ export async function replaceSpreadAction(formData: FormData) {
   }
 
   await replaceSpread(userId, { ...input, file });
-  revalidatePath(`/dashboard/projects/${input.projectId}`);
-  redirect(`/dashboard/projects/${input.projectId}?updatedSpread=${input.spreadId}#spread-${input.spreadId}`);
+  // Keep the action response small; the client loads this dynamic page after saving.
+  return {
+    redirectTo: `/dashboard/projects/${input.projectId}?updatedSpread=${input.spreadId}#spread-${input.spreadId}`,
+  };
 }
 
 export async function createShareLinkAction(formData: FormData) {

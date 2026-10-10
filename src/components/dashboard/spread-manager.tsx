@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useRef, useState } from "react";
+import { useFormStatus } from "react-dom";
 import {
   ArrowDown,
   ArrowUp,
@@ -231,7 +232,10 @@ export function SpreadManager({
                         </form>
                       </div>
                       <form
-                        action={replaceSpreadAction}
+                        action={async (formData) => {
+                          const result = await replaceSpreadAction(formData);
+                          window.location.assign(result.redirectTo);
+                        }}
                         className="flex min-w-0 gap-2"
                       >
                         <input
@@ -277,13 +281,7 @@ export function SpreadManager({
                               "Choose replacement"}
                           </span>
                         </Label>
-                        <Button
-                          variant="outline"
-                          aria-label={`Replace ${spread.filename}`}
-                        >
-                          <RefreshCw className="size-4" aria-hidden="true" />
-                          Replace
-                        </Button>
+                        <ReplaceButton filename={spread.filename} />
                       </form>
                     </div>
                   </figcaption>
@@ -379,5 +377,15 @@ export function SpreadManager({
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+function ReplaceButton({ filename }: { filename: string }) {
+  const { pending } = useFormStatus();
+  return (
+    <Button type="submit" variant="outline" aria-label={`Replace ${filename}`} disabled={pending}>
+      <RefreshCw className={`size-4 ${pending ? "animate-spin" : ""}`} aria-hidden="true" />
+      {pending ? "Saving..." : "Replace"}
+    </Button>
   );
 }
