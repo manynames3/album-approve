@@ -82,15 +82,18 @@ try {
   }
   assert(available, "Production server did not start: " + serverLog);
   browser = await chromium.launch();
-  const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, timezoneId: "UTC", reducedMotion: "reduce" });
-  const page = await context.newPage();
+  let context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, timezoneId: "UTC", reducedMotion: "reduce" });
+  let page = await context.newPage();
   activePage = page;
   page.setDefaultTimeout(15000);
   page.setDefaultNavigationTimeout(30000);
   const browserErrors = [];
+  function observePage(page) {
   page.on("pageerror", (error) => { browserErrors.push(error.message); clientDiagnostics.push({ type: "pageerror", message: error.message }); });
   page.on("console", (message) => { if (["error", "warning"].includes(message.type())) clientDiagnostics.push({ type: message.type(), message: message.text() }); });
   page.on("requestfailed", (request) => clientDiagnostics.push({ type: "requestfailed", url: request.url(), method: request.method(), failure: request.failure() }));
+  }
+  observePage(page);
 
   await page.goto(base + "/");
   await ready(page);
@@ -174,7 +177,14 @@ try {
     await page.getByRole("dialog").waitFor({ state: "hidden" });
   }
 
-  await page.setViewportSize({ width: 1440, height: 1000 });
+  // Client review and studio management belong to separate browser sessions.
+  await context.close();
+  context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, timezoneId: "UTC", reducedMotion: "reduce" });
+  page = await context.newPage();
+  activePage = page;
+  page.setDefaultTimeout(15000);
+  page.setDefaultNavigationTimeout(30000);
+  observePage(page);
   await page.goto(base + "/sign-in");
   await page.getByLabel("Email", { exact: true }).fill("demo@proofalbum.test");
   await page.getByRole("button", { name: /sign in|continue|open/i }).click();

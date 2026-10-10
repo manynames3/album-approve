@@ -231,9 +231,7 @@ export function SpreadManager({
                         </form>
                       </div>
                       <form
-                        action={async (formData) => {
-                          await replaceSpreadAction(formData);
-                        }}
+                        action={replaceSpreadAction}
                         className="flex min-w-0 gap-2"
                       >
                         <input
