@@ -186,7 +186,16 @@ try {
       create: { ...dimensions, channels: 3, background: "#5c7c74" },
     }).png().toBuffer();
     await page.locator("#replacement-spread_cover").setInputFiles({ name: filename, mimeType: "image/png", buffer: fixture });
+    console.log("REPLACEMENT_FORM:" + JSON.stringify(await page.locator("#replacement-spread_cover").evaluate((el) => ({
+      files: [...el.files].map((file) => ({ name: file.name, type: file.type, bytes: file.size })),
+      valid: el.form.checkValidity(),
+      fields: [...new FormData(el.form)].map(([key, value]) => [key, typeof value === "string" ? value : { name: value.name, bytes: value.size }]),
+      buttonType: el.form.querySelector("button")?.type,
+    }))));
+    const responsePromise = page.waitForResponse((response) => response.request().method() === "POST" && response.url().includes("/dashboard/projects/"), { timeout: 15000 });
     await page.getByRole("button", { name: /Replace 0?1-|Replace aspect-check-/ }).click();
+    const actionResponse = await responsePromise;
+    console.log("REPLACEMENT_RESPONSE:" + actionResponse.status() + ":" + (await actionResponse.text()).slice(-5000));
     await page.locator("figure:has(#replacement-spread_cover) figcaption p").filter({ hasText: filename }).first().waitFor();
     await page.goto(base + "/proof/demo-proof-token");
     await ready(page);
@@ -222,6 +231,12 @@ try {
     const failure = await activePage.screenshot();
     const small = await sharp(failure).resize({ width: 1000, withoutEnlargement: true }).webp({ quality: 65 }).toBuffer();
     console.log("VISUAL_FAILURE_IMAGE:" + small.toString("base64"));
+    for (const name of ["proof-desktop", "landing-mobile"]) {
+      try {
+        const preview = await sharp(await readFile(path.join(output, name + ".webp"))).resize({ width: 1000, withoutEnlargement: true }).webp({ quality: 70 }).toBuffer();
+        console.log("VISUAL_PREVIEW_" + name + ":" + preview.toString("base64"));
+      } catch {}
+    }
   }
   throw error;
 } finally {

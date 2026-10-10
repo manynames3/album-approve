@@ -10,6 +10,7 @@ import {
   getProofByToken,
   readData,
   resetDemoData,
+  replaceSpread,
   submitDecisionByToken,
 } from "@/server/store";
 import { signedAssetUrl, verifyAssetSignature } from "@/server/storage";
@@ -110,4 +111,20 @@ describe("ProofAlbum demo store", () => {
       ),
     ).toBe(false);
   });
+  it("keeps a replacement of a public sample private and persists its dimensions", async () => {
+    const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jOa0AAAAASUVORK5CYII=", "base64");
+    const file = new File([png], "replacement.png", { type: "image/png" });
+    await replaceSpread(DEMO_USER_ID, {
+      projectId: "project_harper_album",
+      albumVersionId: "version_harper_v1",
+      spreadId: "spread_cover",
+      file,
+    });
+    const proof = await getProofByToken(DEMO_SHARE_TOKEN);
+    expect(proof?.spreads[0].filename).toBe("replacement.png");
+    expect(proof?.spreads[0].width).toBe(1);
+    expect(proof?.spreads[0].height).toBe(1);
+    expect(proof?.spreads[0].signedUrl).toMatch(/^\/api\/assets\//);
+  });
+
 });
