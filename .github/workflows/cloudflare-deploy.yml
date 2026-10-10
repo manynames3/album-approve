@@ -1,0 +1,108 @@
+name: Deploy Cloudflare demo
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [.github/workflows/cloudflare-deploy.yml]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloudflare-production
+  cancel-in-progress: false
+
+jobs:
+  release:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      NEXT_PUBLIC_APP_URL: https://album-approve.hangi87.workers.dev
+      NEXT_TELEMETRY_DISABLED: 1
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Check deployment credentials without exposing values
+        id: credentials
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -n "$CLOUDFLARE_API_TOKEN" ] && [ -n "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::Deployment not attempted: configure CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID repository secrets."
+            echo "Deployment blocked: Cloudflare repository secrets are missing. Build verification still runs." >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - name: Build the actual Cloudflare Worker
+        run: npm exec -- opennextjs-cloudflare build
+      - name: Validate whitespace
+        run: git diff HEAD~1 HEAD --check
+      - name: Refuse a stale release
+        if: steps.credentials.outputs.ready == 'true'
+        run: |
+          git fetch origin main --depth=1
+          if [ "$(git rev-parse HEAD)" != "$(git rev-parse origin/main)" ]; then
+            echo "::error::Main changed after this build; refusing to deploy stale code."
+            exit 1
+          fi
+      - name: Deploy the existing album-approve Worker
+        if: steps.credentials.outputs.ready == 'true'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npm exec -- opennextjs-cloudflare deploy
+      - name: Verify live routes and all four photographic samples
+        if: steps.credentials.outputs.ready == 'true'
+        run: |
+          node --input-type=module <<'NODE'
+          import assert from "node:assert/strict";
+          import { readFile } from "node:fs/promises";
+          const base = process.env.NEXT_PUBLIC_APP_URL;
+          const assets = JSON.parse(await readFile("src/lib/demo-album-assets.json", "utf8"));
+          let failure;
+          for (let attempt = 0; attempt < 6; attempt++) {
+            try {
+              for (const route of ["/", "/proof/demo-proof-token"]) {
+                const response = await fetch(new URL(route, base), { signal: AbortSignal.timeout(20000) });
+                assert.equal(response.status, 200, route + " did not load");
+                assert((await response.text()).includes("Album Approve"), route + " returned an unexpected page");
+              }
+              for (const asset of assets) {
+                const response = await fetch(new URL(asset.src, base), { signal: AbortSignal.timeout(20000) });
+                assert.equal(response.status, 200, asset.src + " did not load");
+                assert.equal((await response.arrayBuffer()).byteLength, asset.sizeBytes, asset.src + " differs from the release");
+              }
+              console.log("Live homepage, proof, and four photographic samples verified.");
+              failure = undefined;
+              break;
+            } catch (error) {
+              failure = error;
+              await new Promise((resolve) => setTimeout(resolve, 10000));
+            }
+          }
+          if (failure) throw failure;
+          NODE
+      - name: Record release outcome
+        if: success()
+        env:
+          READY: ${{ steps.credentials.outputs.ready }}
+        run: |
+          echo "Worker build verified for commit $GITHUB_SHA." >> "$GITHUB_STEP_SUMMARY"
+          if [ "$READY" = "true" ]; then
+            echo "Deployed and smoke-tested: https://album-approve.hangi87.workers.dev" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Not deployed. Add Cloudflare repository secrets and run this workflow manually on main." >> "$GITHUB_STEP_SUMMARY"
+          fi
