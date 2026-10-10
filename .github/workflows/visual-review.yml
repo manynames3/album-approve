@@ -44,6 +44,7 @@ jobs:
       - name: Install Chromium
         run: /tmp/album-visual-tools/node_modules/.bin/playwright install --with-deps chromium
       - name: Check real review flows and desktop/mobile visuals
+        timeout-minutes: 5
         run: node scripts/verify-album-visuals.mjs
       - run: git diff --check
       - run: git diff HEAD~1 HEAD --check

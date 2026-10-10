@@ -84,6 +84,8 @@ try {
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, timezoneId: "UTC", reducedMotion: "reduce" });
   const page = await context.newPage();
   activePage = page;
+  page.setDefaultTimeout(15000);
+  page.setDefaultNavigationTimeout(30000);
   const browserErrors = [];
   page.on("pageerror", (error) => browserErrors.push(error.message));
 
@@ -198,7 +200,6 @@ try {
     console.log("REPLACEMENT_RESPONSE:" + JSON.stringify({
       status: actionResponse.status(), headers: actionResponse.headers(),
     }));
-    await actionResponse.finished();
     console.log("REPLACEMENT_STORE:" + JSON.stringify(JSON.parse(await readFile(path.join(root, ".data/proofalbum-demo.json"), "utf8")).spreads.find((spread) => spread.id === "spread_cover")));
     await page.locator("figure:has(#replacement-spread_cover) figcaption p").filter({ hasText: filename }).first().waitFor();
     await page.goto(base + "/proof/demo-proof-token");
