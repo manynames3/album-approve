@@ -13,7 +13,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "seed": "tsx scripts/seed-demo.ts",
-    "format": "prettier --check ."
+    "format": "prettier --check .",
+    "assets:demo": "node scripts/prepare-demo-assets.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.105.4",

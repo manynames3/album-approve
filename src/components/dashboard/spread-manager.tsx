@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useRef, useState } from "react";
+import { useFormStatus } from "react-dom";
 import {
   ArrowDown,
   ArrowUp,
@@ -98,7 +99,7 @@ export function SpreadManager({
                   id={`spread-${spread.id}`}
                   className="group min-w-0 overflow-hidden rounded-lg border border-zinc-200 bg-white transition hover:border-zinc-300"
                 >
-                  <div className="relative bg-[#f7f6f2] p-3">
+                  <div className="relative flex h-56 items-center justify-center bg-zinc-50 p-3">
                     <Image
                       src={spread.thumbnailUrl}
                       alt={`Spread ${spreadIndex + 1}: ${spread.filename}`}
@@ -106,7 +107,7 @@ export function SpreadManager({
                       height={spread.height || 900}
                       unoptimized
                       priority={spreadIndex === 0}
-                      className="aspect-[14/9] w-full rounded-md object-cover ring-1 ring-black/5"
+                      className="max-h-full w-full object-contain"
                     />
                     <div className="absolute left-5 top-5">
                       <Badge className="bg-zinc-950/85 text-white">
@@ -231,7 +232,10 @@ export function SpreadManager({
                         </form>
                       </div>
                       <form
-                        action={replaceSpreadAction}
+                        action={async (formData) => {
+                          const result = await replaceSpreadAction(formData);
+                          window.location.assign(result.redirectTo);
+                        }}
                         className="flex min-w-0 gap-2"
                       >
                         <input
@@ -277,13 +281,7 @@ export function SpreadManager({
                               "Choose replacement"}
                           </span>
                         </Label>
-                        <Button
-                          variant="outline"
-                          aria-label={`Replace ${spread.filename}`}
-                        >
-                          <RefreshCw className="size-4" aria-hidden="true" />
-                          Replace
-                        </Button>
+                        <ReplaceButton filename={spread.filename} />
                       </form>
                     </div>
                   </figcaption>
@@ -326,7 +324,7 @@ export function SpreadManager({
               className={`flex min-h-48 cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed p-6 text-center transition ${
                 isDragging
                   ? "border-teal-500 bg-teal-50"
-                  : "border-zinc-300 bg-[#fbfaf6] hover:border-emerald-300 hover:bg-emerald-50/60"
+                  : "border-zinc-300 bg-zinc-50 hover:border-emerald-300 hover:bg-emerald-50/60"
               }`}
               onDragOver={(event) => {
                 event.preventDefault();
@@ -379,5 +377,23 @@ export function SpreadManager({
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+function ReplaceButton({ filename }: { filename: string }) {
+  const { pending } = useFormStatus();
+  return (
+    <Button
+      type="submit"
+      variant="outline"
+      aria-label={`Replace ${filename}`}
+      disabled={pending}
+    >
+      <RefreshCw
+        className={`size-4 ${pending ? "animate-spin" : ""}`}
+        aria-hidden="true"
+      />
+      {pending ? "Saving..." : "Replace"}
+    </Button>
   );
 }

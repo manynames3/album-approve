@@ -1,8 +1,16 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
 import {
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type ReactNode,
+} from "react";
+import { useFormStatus } from "react-dom";
+import {
+  Check,
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
@@ -11,27 +19,32 @@ import {
   Minimize2,
   Minus,
   Plus,
-  XCircle,
+  Scan,
+  X,
 } from "lucide-react";
 import {
   addProofCommentAction,
   submitProofDecisionAction,
 } from "@/app/actions/proof";
 import { StatusBadge } from "@/components/app/status-badge";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  SpreadCanvas,
+  type SpreadPin,
+  type CanvasComment,
+} from "./spread-canvas";
+import { getDemoAlbumAsset } from "@/lib/demo-album";
 import { formatDateTime } from "@/lib/format";
-import type { ProofSession } from "@/server/types";
+import type { ApprovalDecision, ProofSession } from "@/server/types";
 
 type ProofViewerProps = {
   proof: ProofSession;
@@ -40,8 +53,6 @@ type ProofViewerProps = {
   defaultEmail: string;
   submitted?: string;
 };
-
-type Pin = { x: number; y: number };
 
 export function ProofViewer({
   proof,
@@ -52,650 +63,825 @@ export function ProofViewer({
 }: ProofViewerProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [zoom, setZoom] = useState(1);
-  const [isFocusedView, setIsFocusedView] = useState(false);
-  const [draftPin, setDraftPin] = useState<Pin | null>(null);
-  const [clientName, setClientName] = useState(() =>
-    typeof window === "undefined"
-      ? defaultName
-      : window.localStorage.getItem("proofalbum.clientName") || defaultName,
+  const [fullScreen, setFullScreen] = useState(false);
+  const [draftPin, setDraftPin] = useState<SpreadPin | null>(null);
+  const [composerOpen, setComposerOpen] = useState(false);
+  const [selectedComment, setSelectedComment] = useState<string | null>(null);
+  const [fallbackIdentity, setFallbackIdentity] = useState({
+    name: defaultName,
+    email: defaultEmail,
+  });
+  const [decision, setDecision] = useState<ApprovalDecision>("approved");
+  const [decisionOpen, setDecisionOpen] = useState(false);
+  const composerRef = useRef<HTMLTextAreaElement>(null);
+  const identityKey = "album-approve.reviewer." + proof.project.id;
+  const storedIdentity = useSyncExternalStore(
+    subscribeReviewerIdentity,
+    () => {
+      try {
+        return localStorage.getItem(identityKey);
+      } catch {
+        return null;
+      }
+    },
+    () => null,
   );
-  const [clientEmail, setClientEmail] = useState(() =>
-    typeof window === "undefined"
-      ? defaultEmail
-      : window.localStorage.getItem("proofalbum.clientEmail") || defaultEmail,
-  );
-  const [decision, setDecision] = useState<"approved" | "changes_requested">(
-    "approved",
+  const { name: clientName, email: clientEmail } = parseReviewerIdentity(
+    storedIdentity,
+    fallbackIdentity,
   );
 
   const activeSpread = proof.spreads[activeIndex] || proof.spreads[0];
   const activeComments = proof.comments
     .filter((comment) => comment.spreadId === activeSpread?.id)
     .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+  const pins: CanvasComment[] = activeComments.flatMap((comment, index) =>
+    comment.x !== undefined && comment.y !== undefined
+      ? [
+          {
+            id: comment.id,
+            number: index + 1,
+            body: comment.body,
+            x: comment.x,
+            y: comment.y,
+            resolved: Boolean(comment.resolvedAt),
+          },
+        ]
+      : [],
+  );
   const unresolvedCount = proof.comments.filter(
     (comment) => !comment.resolvedAt,
   ).length;
-  const progressLabel = `${activeIndex + 1} of ${proof.spreads.length}`;
-  const maxZoom = isFocusedView ? 3 : 1.8;
+  const isSampleAlbum = proof.spreads.some((spread) =>
+    getDemoAlbumAsset(spread.storageKey),
+  );
+
+  function changeIdentity(name: string, email: string) {
+    setFallbackIdentity({ name, email });
+    try {
+      localStorage.setItem(identityKey, JSON.stringify({ name, email }));
+      window.dispatchEvent(new Event("album-approve:reviewer"));
+    } catch {}
+  }
 
   useEffect(() => {
-    window.localStorage.setItem("proofalbum.clientName", clientName);
-  }, [clientName]);
+    function restoreSpread() {
+      const id = window.location.hash.replace("#spread-", "");
+      const index = proof.spreads.findIndex((spread) => spread.id === id);
+      if (index >= 0) {
+        setActiveIndex(index);
+        setDraftPin(null);
+        setComposerOpen(false);
+      }
+    }
+    restoreSpread();
+    window.addEventListener("hashchange", restoreSpread);
+    return () => window.removeEventListener("hashchange", restoreSpread);
+  }, [proof.spreads]);
 
   useEffect(() => {
-    window.localStorage.setItem("proofalbum.clientEmail", clientEmail);
-  }, [clientEmail]);
+    if (composerOpen && !fullScreen) composerRef.current?.focus();
+  }, [composerOpen, fullScreen, draftPin]);
+
+  useEffect(() => {
+    if (selectedComment) {
+      document
+        .getElementById("comment-" + selectedComment)
+        ?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }
+  }, [selectedComment]);
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape" && isFocusedView) {
-        event.preventDefault();
-        setIsFocusedView(false);
-        return;
-      }
-
       const target = event.target as HTMLElement | null;
       if (
-        target?.tagName === "INPUT" ||
-        target?.tagName === "TEXTAREA" ||
-        target?.isContentEditable
-      ) {
+        decisionOpen ||
+        event.altKey ||
+        event.ctrlKey ||
+        event.metaKey ||
+        target?.closest("input, textarea, select, [contenteditable=true]")
+      )
         return;
-      }
-
-      if (event.key === "ArrowRight") {
+      if (event.key === "ArrowRight" || event.key === "ArrowLeft") {
         event.preventDefault();
         setActiveIndex((index) =>
-          Math.min(index + 1, proof.spreads.length - 1),
+          Math.max(
+            0,
+            Math.min(
+              proof.spreads.length - 1,
+              index + (event.key === "ArrowRight" ? 1 : -1),
+            ),
+          ),
         );
         setDraftPin(null);
+        setComposerOpen(false);
+        setSelectedComment(null);
+        setZoom(1);
       }
-
-      if (event.key === "ArrowLeft") {
-        event.preventDefault();
-        setActiveIndex((index) => Math.max(index - 1, 0));
-        setDraftPin(null);
-      }
-
       if (event.key === "+" || event.key === "=") {
         event.preventDefault();
-        setZoom((value) => Math.min(value + 0.1, maxZoom));
+        setZoom((value) => Math.min(3, value + 0.25));
       }
-
       if (event.key === "-") {
         event.preventDefault();
-        setZoom((value) => Math.max(value - 0.1, 0.7));
+        setZoom((value) => Math.max(1, value - 0.25));
       }
     }
-
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [isFocusedView, maxZoom, proof.spreads.length]);
+  }, [decisionOpen, proof.spreads.length]);
 
-  function moveActiveSpread(nextIndex: number) {
-    setActiveIndex(Math.max(0, Math.min(nextIndex, proof.spreads.length - 1)));
+  function moveSpread(index: number) {
+    setActiveIndex(Math.max(0, Math.min(proof.spreads.length - 1, index)));
     setDraftPin(null);
+    setComposerOpen(false);
+    setSelectedComment(null);
+    setZoom(1);
   }
 
-  function enterFullScreenView() {
-    setIsFocusedView(true);
-    setZoom((value) => Math.max(value, 1.25));
+  function placePin(pin: SpreadPin) {
+    setDraftPin(pin);
+    setSelectedComment(null);
+    setComposerOpen(true);
+    setFullScreen(false);
   }
 
-  function exitFullScreenView() {
-    setIsFocusedView(false);
-    setZoom((value) => Math.min(value, 1.8));
+  function finishReview(nextDecision: ApprovalDecision) {
+    setDecision(nextDecision);
+    setDecisionOpen(true);
   }
 
-  function handleImageClick(event: React.MouseEvent<HTMLButtonElement>) {
-    const rect = event.currentTarget.getBoundingClientRect();
-    const x = (event.clientX - rect.left) / rect.width;
-    const y = (event.clientY - rect.top) / rect.height;
-
-    setDraftPin({
-      x: Math.max(0, Math.min(1, x)),
-      y: Math.max(0, Math.min(1, y)),
-    });
+  if (!activeSpread) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-zinc-50 p-6">
+        <div className="max-w-md text-center">
+          <p className="text-sm text-zinc-500">{proof.studio.name}</p>
+          <h1 className="mt-3 break-words text-2xl font-semibold">
+            {proof.project.title}
+          </h1>
+          <p className="mt-4 text-sm leading-6 text-zinc-600">
+            The studio has not added any spreads to this version yet. Contact
+            your photographer for an updated proof.
+          </p>
+        </div>
+      </main>
+    );
   }
+
+  const albumSurface = (
+    <AlbumSurface
+      spread={activeSpread}
+      projectTitle={proof.project.title}
+      index={activeIndex}
+      count={proof.spreads.length}
+      zoom={zoom}
+      fullScreen={fullScreen}
+      pins={pins}
+      draftPin={draftPin}
+      selectedPin={selectedComment}
+      onPlacePin={placePin}
+      onSelectPin={(id) => {
+        setSelectedComment(id);
+        setFullScreen(false);
+      }}
+      onMove={moveSpread}
+      onZoom={setZoom}
+      onFullScreen={() => {
+        setZoom(1);
+        setFullScreen((value) => !value);
+      }}
+    />
+  );
 
   return (
-    <main
-      className={
-        isFocusedView
-          ? "fixed inset-0 z-50 flex flex-col overflow-hidden bg-zinc-950 text-white"
-          : "min-h-screen bg-zinc-100"
-      }
-    >
-      <header
-        className={
-          isFocusedView
-            ? "sticky top-0 z-20 shrink-0 border-b border-white/10 bg-zinc-950/95 backdrop-blur"
-            : "sticky top-0 z-20 border-b bg-white/90 backdrop-blur"
-        }
-        style={{
-          borderColor: isFocusedView
-            ? undefined
-            : proof.studio.brandColor || "#0f766e",
-        }}
-      >
-        <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-5 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
-          <div>
-            <p
-              className={
-                isFocusedView
-                  ? "text-sm font-medium text-teal-200"
-                  : "text-sm font-medium text-teal-700"
-              }
-            >
+    <main data-proof-root className="min-h-screen bg-white text-zinc-950">
+      {isSampleAlbum ? (
+        <div className="border-b border-zinc-200 bg-zinc-50 px-4 py-2 text-center text-xs leading-5 text-zinc-500">
+          Generated sample wedding album. Public preview: use sample files only.
+        </div>
+      ) : null}
+      <header className="border-b border-zinc-200">
+        <div className="mx-auto flex max-w-[1720px] flex-wrap items-center justify-between gap-4 px-4 py-5 sm:px-7">
+          <div className="min-w-0">
+            <p className="text-xs font-medium text-zinc-500">
               {proof.studio.name}
             </p>
-            <h1 className="mt-1 text-2xl font-semibold tracking-tight">
+            <h1 className="mt-1 break-words text-xl font-medium">
               {proof.project.title}
             </h1>
-            <p
-              className={
-                isFocusedView
-                  ? "mt-1 text-sm text-zinc-300"
-                  : "mt-1 text-sm text-zinc-600"
-              }
-            >
-              Version {proof.version.versionNumber} · {proof.spreads.length}{" "}
-              spreads
-            </p>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <Badge
-              variant="outline"
-              className={
-                isFocusedView
-                  ? "border-white/20 bg-white/10 text-white"
-                  : "bg-zinc-50 text-zinc-700"
-              }
-            >
-              Flipbook {progressLabel}
-            </Badge>
-            <Badge
-              variant="outline"
-              className={
-                unresolvedCount
-                  ? "border-amber-200 bg-amber-50 text-amber-800"
-                  : "border-emerald-200 bg-emerald-50 text-emerald-700"
-              }
-            >
-              {unresolvedCount} open
-            </Badge>
+          <div className="flex shrink-0 items-center gap-3 text-xs text-zinc-500">
+            <span>Version {proof.version.versionNumber}</span>
             <StatusBadge status={proof.version.status} />
-            <Button
-              type="button"
-              variant={isFocusedView ? "secondary" : "outline"}
-              className="gap-2"
-              onClick={isFocusedView ? exitFullScreenView : enterFullScreenView}
-            >
-              {isFocusedView ? (
-                <Minimize2 className="size-4" aria-hidden="true" />
-              ) : (
-                <Maximize2 className="size-4" aria-hidden="true" />
-              )}
-              {isFocusedView ? "Exit full screen" : "Full screen"}
-            </Button>
           </div>
         </div>
       </header>
 
+      {submitted === "approved" || submitted === "changes_requested" ? (
+        <div
+          role="status"
+          className="border-b border-teal-100 bg-teal-50 px-4 py-3 text-center text-sm text-teal-900"
+        >
+          {submitted === "approved"
+            ? "Your approval was recorded"
+            : "Your change request was recorded"}{" "}
+          for version {proof.version.versionNumber}.
+        </div>
+      ) : null}
+
       <div
-        className={
-          isFocusedView
-            ? "mx-auto grid min-h-0 w-full max-w-[1800px] flex-1 gap-4 overflow-hidden px-3 py-3 sm:px-4"
-            : "mx-auto grid max-w-7xl gap-6 px-4 py-6 sm:px-6 md:grid-cols-[minmax(0,1fr)_320px] lg:px-8 xl:grid-cols-[minmax(0,1fr)_380px]"
-        }
+        data-proof-workspace
+        className="mx-auto grid max-w-[1720px] lg:grid-cols-[minmax(0,1fr)_320px]"
       >
         <section
-          className={
-            isFocusedView
-              ? "flex min-h-0 min-w-0 flex-col"
-              : "min-w-0 space-y-4"
-          }
+          aria-label="Album spreads"
+          className="min-w-0 bg-zinc-50 p-3 sm:p-6"
         >
-          {submitted ? (
-            <Card className="border-teal-200 bg-teal-50 text-teal-950">
-              <CardContent className="pt-0 text-sm">
-                Decision submitted: {submitted.replaceAll("_", " ")}.
-              </CardContent>
-            </Card>
-          ) : null}
-
-          <Card
-            className={
-              isFocusedView
-                ? "flex min-h-0 flex-1 flex-col border-white/10 bg-zinc-900 text-white"
-                : "bg-white"
-            }
+          {!fullScreen ? (
+            albumSurface
+          ) : (
+            <div className="h-[min(62svh,620px)]" />
+          )}
+          <div className="mt-5 flex items-center justify-between gap-3 text-xs text-zinc-500">
+            <span>{proof.spreads.length} spreads</span>
+            <span>{activeComments.length} comments on this spread</span>
+          </div>
+          <div
+            aria-label="Choose a spread"
+            className="mt-3 flex gap-3 overflow-x-auto pb-3"
           >
-            <CardHeader
-              className={
-                isFocusedView ? "border-b border-white/10" : "border-b"
-              }
-            >
-              <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                <div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <CardTitle>
-                      Spread {activeIndex + 1}: {activeSpread.filename}
-                    </CardTitle>
-                    {activeComments.length ? (
-                      <Badge
-                        variant="outline"
-                        className="border-blue-200 bg-blue-50 text-blue-700"
-                      >
-                        {activeComments.length} comments
-                      </Badge>
-                    ) : null}
-                  </div>
-                  <CardDescription
-                    className={isFocusedView ? "text-zinc-300" : undefined}
-                  >
-                    {isFocusedView
-                      ? "Use + and - to inspect details. Press Escape to exit full screen."
-                      : "Click the image to place a pin before adding a comment."}
-                  </CardDescription>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <Button
-                    type="button"
-                    variant={isFocusedView ? "secondary" : "outline"}
-                    size="icon"
-                    aria-label="Previous spread"
-                    onClick={() => moveActiveSpread(activeIndex - 1)}
-                    disabled={activeIndex === 0}
-                  >
-                    <ChevronLeft className="size-4" aria-hidden="true" />
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={isFocusedView ? "secondary" : "outline"}
-                    size="icon"
-                    aria-label="Zoom out"
-                    onClick={() =>
-                      setZoom((value) => Math.max(value - 0.1, 0.7))
-                    }
-                  >
-                    <Minus className="size-4" aria-hidden="true" />
-                  </Button>
-                  <div
-                    className={
-                      isFocusedView
-                        ? "flex h-8 min-w-16 items-center justify-center rounded-lg border border-white/20 bg-white/10 px-2 text-sm text-white"
-                        : "flex h-8 min-w-16 items-center justify-center rounded-lg border px-2 text-sm"
-                    }
-                  >
-                    {Math.round(zoom * 100)}%
-                  </div>
-                  <Button
-                    type="button"
-                    variant={isFocusedView ? "secondary" : "outline"}
-                    size="icon"
-                    aria-label="Zoom in"
-                    onClick={() =>
-                      setZoom((value) => Math.min(value + 0.1, maxZoom))
-                    }
-                  >
-                    <Plus className="size-4" aria-hidden="true" />
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={isFocusedView ? "secondary" : "outline"}
-                    size="icon"
-                    aria-label="Next spread"
-                    onClick={() => moveActiveSpread(activeIndex + 1)}
-                    disabled={activeIndex === proof.spreads.length - 1}
-                  >
-                    <ChevronRight className="size-4" aria-hidden="true" />
-                  </Button>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent
-              className={isFocusedView ? "min-h-0 flex-1 pt-0" : "pt-0"}
-            >
-              <div
-                className={
-                  isFocusedView
-                    ? "h-full overflow-auto rounded-lg border border-white/10 bg-zinc-950 p-3"
-                    : "overflow-auto rounded-lg border bg-zinc-950 p-3"
-                }
-              >
+            {proof.spreads.map((spread, index) => {
+              const sample = getDemoAlbumAsset(spread.storageKey);
+              const count = proof.comments.filter(
+                (comment) => comment.spreadId === spread.id,
+              ).length;
+              return (
                 <button
+                  key={spread.id}
                   type="button"
-                  aria-label={`Set comment pin on spread ${activeIndex + 1}`}
-                  className="relative block w-full cursor-crosshair overflow-hidden rounded-md bg-white text-left shadow-2xl shadow-black/25"
-                  onClick={handleImageClick}
-                  style={{
-                    width: `${zoom * 100}%`,
-                    marginInline: "auto",
-                  }}
+                  aria-label={
+                    "View spread " +
+                    (index + 1) +
+                    (sample ? ": " + sample.title : "")
+                  }
+                  aria-current={index === activeIndex ? "true" : undefined}
+                  className={
+                    "w-28 shrink-0 rounded-md border p-1.5 text-left transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 " +
+                    (index === activeIndex
+                      ? "border-teal-700 bg-white"
+                      : "border-zinc-200 bg-white/60 hover:border-zinc-400")
+                  }
+                  onClick={() => moveSpread(index)}
                 >
                   <Image
-                    src={activeSpread.signedUrl}
-                    alt={`${proof.project.title} spread ${activeIndex + 1}`}
-                    width={activeSpread.width || 1400}
-                    height={activeSpread.height || 900}
+                    src={spread.thumbnailUrl}
+                    alt=""
+                    width={spread.width || 1400}
+                    height={spread.height || 900}
                     unoptimized
-                    priority
-                    className="aspect-[14/9] w-full object-cover"
+                    className="h-14 w-full object-contain"
                   />
-                  {activeComments
-                    .filter(
-                      (comment) =>
-                        comment.x !== undefined && comment.y !== undefined,
-                    )
-                    .map((comment, index) => (
-                      <span
-                        key={comment.id}
-                        className="absolute flex size-7 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-amber-400 text-xs font-semibold text-zinc-950 ring-2 ring-white"
-                        style={{
-                          left: `${(comment.x || 0) * 100}%`,
-                          top: `${(comment.y || 0) * 100}%`,
-                        }}
-                      >
-                        {index + 1}
-                      </span>
-                    ))}
-                  {draftPin ? (
-                    <span
-                      className="absolute flex size-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-teal-600 text-xs font-semibold text-white ring-2 ring-white"
-                      style={{
-                        left: `${draftPin.x * 100}%`,
-                        top: `${draftPin.y * 100}%`,
-                      }}
-                    >
-                      New
+                  <span className="mt-1.5 flex justify-between gap-2 text-[11px] text-zinc-500">
+                    <span>
+                      {index + 1}
+                      {sample ? " · " + sample.title : ""}
                     </span>
-                  ) : null}
+                    {count ? (
+                      <span aria-label={count + " comments"}>{count}</span>
+                    ) : null}
+                  </span>
                 </button>
-              </div>
-            </CardContent>
-          </Card>
-
-          {!isFocusedView ? (
-            <div>
-              <div className="mb-3 flex items-center justify-between gap-3">
-                <p
-                  className={
-                    isFocusedView
-                      ? "text-sm font-medium text-zinc-200"
-                      : "text-sm font-medium text-zinc-700"
-                  }
-                >
-                  Flip-through queue
-                </p>
-                <p
-                  className={
-                    isFocusedView
-                      ? "text-xs text-zinc-400"
-                      : "text-xs text-zinc-500"
-                  }
-                >
-                  Arrow keys move between spreads
-                </p>
-              </div>
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                {proof.spreads.map((spread, index) => {
-                  const count = proof.comments.filter(
-                    (comment) => comment.spreadId === spread.id,
-                  ).length;
-
-                  return (
-                    <button
-                      key={spread.id}
-                      type="button"
-                      aria-label={`Spread ${index + 1}, ${count} comment${
-                        count === 1 ? "" : "s"
-                      }`}
-                      className={`rounded-lg border p-2 text-left text-sm transition ${
-                        index === activeIndex
-                          ? "border-teal-600 bg-teal-50 shadow-sm"
-                          : isFocusedView
-                            ? "border-white/10 bg-white/5 text-white hover:bg-white/10"
-                            : "bg-white hover:bg-zinc-50"
-                      }`}
-                      onClick={() => moveActiveSpread(index)}
-                    >
-                      <Image
-                        src={spread.thumbnailUrl}
-                        alt=""
-                        width={240}
-                        height={154}
-                        unoptimized
-                        className="aspect-[14/9] w-full rounded-md object-cover"
-                      />
-                      <div className="mt-2 flex items-center justify-between gap-2">
-                        <span className="truncate font-medium">
-                          Spread {index + 1}
-                        </span>
-                        <span
-                          className={
-                            isFocusedView
-                              ? "text-xs text-zinc-300"
-                              : "text-xs text-zinc-500"
-                          }
-                        >
-                          {count}
-                        </span>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          ) : null}
+              );
+            })}
+          </div>
         </section>
 
-        {!isFocusedView ? (
-          <aside className="min-w-0 space-y-6 md:sticky md:top-6 md:self-start">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between gap-3">
-                  <CardTitle>Client details</CardTitle>
-                  <Badge variant="outline" className="bg-zinc-50 text-zinc-700">
-                    Saved
-                  </Badge>
-                </div>
-                <CardDescription>
-                  Saved in this browser for all comments and decisions.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="space-y-2">
-                  <Label htmlFor="proof-client-name">Name</Label>
-                  <Input
-                    id="proof-client-name"
-                    value={clientName}
-                    onChange={(event) => setClientName(event.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="proof-client-email">Email</Label>
-                  <Input
-                    id="proof-client-email"
-                    value={clientEmail}
-                    type="email"
-                    onChange={(event) => setClientEmail(event.target.value)}
-                  />
-                </div>
-              </CardContent>
-            </Card>
+        <aside
+          aria-label="Album feedback"
+          className="min-w-0 border-t border-zinc-200 lg:border-t-0 lg:border-l"
+        >
+          <section className="border-b border-zinc-200 p-5">
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="text-sm font-semibold">Feedback</h2>
+              <span className="text-xs text-zinc-500">
+                Spread {activeIndex + 1}
+              </span>
+            </div>
+            <p className="mt-2 break-words text-xs text-zinc-500">
+              Reviewing as {clientName || "guest"}
+            </p>
+            {!composerOpen ? (
+              <Button
+                variant="outline"
+                className="mt-4 w-full"
+                onClick={() => {
+                  setDraftPin(null);
+                  setComposerOpen(true);
+                }}
+              >
+                <MessageSquarePlus className="size-4" aria-hidden /> Add comment
+              </Button>
+            ) : null}
 
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between gap-3">
-                  <CardTitle>Add comment</CardTitle>
-                  <Badge
-                    variant="outline"
+            {composerOpen ? (
+              <form
+                action={addProofCommentAction}
+                key={activeSpread.id}
+                className="mt-4 space-y-3"
+              >
+                <input type="hidden" name="token" value={token} />
+                <input type="hidden" name="spreadId" value={activeSpread.id} />
+                {draftPin ? (
+                  <>
+                    <input type="hidden" name="x" value={draftPin.x} />
+                    <input type="hidden" name="y" value={draftPin.y} />
+                  </>
+                ) : null}
+                <div className="flex items-center justify-between gap-2">
+                  <Label htmlFor="comment-body">
+                    {draftPin ? "Pinned comment" : "Spread comment"}
+                  </Label>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-sm"
+                    aria-label="Cancel comment"
+                    title="Cancel comment"
+                    onClick={() => {
+                      setComposerOpen(false);
+                      setDraftPin(null);
+                    }}
+                  >
+                    <X className="size-4" aria-hidden />
+                  </Button>
+                </div>
+                <Textarea
+                  ref={composerRef}
+                  id="comment-body"
+                  name="body"
+                  required
+                  minLength={2}
+                  maxLength={1200}
+                  rows={3}
+                  placeholder="What would you like changed?"
+                />
+                {draftPin ? (
+                  <button
+                    type="button"
+                    className="text-xs text-zinc-500 underline underline-offset-4"
+                    onClick={() => setDraftPin(null)}
+                  >
+                    Remove location pin
+                  </button>
+                ) : null}
+                <ReviewerFields
+                  prefix="comment"
+                  nameField="authorName"
+                  emailField="authorEmail"
+                  name={clientName}
+                  email={clientEmail}
+                  onChange={changeIdentity}
+                />
+                <SubmitButton pendingLabel="Saving comment...">
+                  <MessageSquarePlus className="size-4" aria-hidden /> Save
+                  comment
+                </SubmitButton>
+              </form>
+            ) : null}
+          </section>
+
+          <section
+            data-comment-list
+            className="max-h-[440px] overflow-y-auto p-5 lg:max-h-[min(45svh,440px)]"
+          >
+            {activeComments.length ? (
+              <ol className="space-y-5">
+                {activeComments.map((comment, index) => (
+                  <li
+                    key={comment.id}
+                    id={"comment-" + comment.id}
+                    tabIndex={-1}
                     className={
-                      draftPin
-                        ? "border-teal-200 bg-teal-50 text-teal-800"
-                        : "bg-zinc-50 text-zinc-700"
+                      "rounded-md p-2 -mx-2 " +
+                      (selectedComment === comment.id
+                        ? "bg-teal-50 ring-1 ring-teal-200"
+                        : "")
                     }
                   >
-                    {draftPin ? "Pinned" : "Optional pin"}
-                  </Badge>
-                </div>
-                <CardDescription>
-                  {draftPin
-                    ? `Pinned at ${Math.round(draftPin.x * 100)}%, ${Math.round(
-                        draftPin.y * 100,
-                      )}%`
-                    : "Click the spread to add an optional pin."}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form action={addProofCommentAction} className="space-y-4">
-                  <input type="hidden" name="token" value={token} />
-                  <input
-                    type="hidden"
-                    name="spreadId"
-                    value={activeSpread.id}
-                  />
-                  <input type="hidden" name="authorName" value={clientName} />
-                  <input type="hidden" name="authorEmail" value={clientEmail} />
-                  {draftPin ? (
-                    <>
-                      <input type="hidden" name="x" value={draftPin.x} />
-                      <input type="hidden" name="y" value={draftPin.y} />
-                    </>
-                  ) : null}
-                  <div className="space-y-2">
-                    <Label htmlFor="comment-body">Comment</Label>
-                    <Textarea
-                      id="comment-body"
-                      name="body"
-                      placeholder="Add a spread-specific note"
-                      required
-                    />
-                  </div>
-                  <Button
-                    className="w-full gap-2"
-                    disabled={!clientName || !clientEmail}
-                  >
-                    <MessageSquarePlus className="size-4" aria-hidden="true" />
-                    Add comment
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between gap-3">
-                  <CardTitle>Submit decision</CardTitle>
-                  <Badge variant="outline" className="bg-zinc-50 text-zinc-700">
-                    v{proof.version.versionNumber}
-                  </Badge>
-                </div>
-                <CardDescription>
-                  Approval is timestamped and retained separately from comments.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="mb-4 grid gap-2 rounded-lg border bg-zinc-50 p-3 text-sm">
-                  <div className="flex items-center justify-between gap-3">
-                    <span>Version</span>
-                    <span className="font-medium">
-                      v{proof.version.versionNumber}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between gap-3">
-                    <span>Unresolved comments</span>
-                    <span className="font-medium">{unresolvedCount}</span>
-                  </div>
-                  <div className="flex items-center justify-between gap-3">
-                    <span>Spreads reviewed</span>
-                    <span className="font-medium">{proof.spreads.length}</span>
-                  </div>
-                </div>
-                <form action={submitProofDecisionAction} className="space-y-4">
-                  <input type="hidden" name="token" value={token} />
-                  <input type="hidden" name="clientName" value={clientName} />
-                  <input type="hidden" name="clientEmail" value={clientEmail} />
-                  <div className="space-y-2">
-                    <Label htmlFor="decision-message">Message</Label>
-                    <Textarea
-                      id="decision-message"
-                      name="message"
-                      required={decision === "changes_requested"}
-                      placeholder={
-                        decision === "changes_requested"
-                          ? "Describe what needs to change"
-                          : "Optional approval note"
-                      }
-                    />
-                  </div>
-                  <div className="grid gap-2">
-                    <Button
-                      type="submit"
-                      name="decision"
-                      value="approved"
-                      className="gap-2"
-                      onClick={() => setDecision("approved")}
-                      disabled={!clientName || !clientEmail}
-                    >
-                      <CheckCircle2 className="size-4" aria-hidden="true" />
-                      Approve album
-                    </Button>
-                    <Button
-                      type="submit"
-                      name="decision"
-                      value="changes_requested"
-                      variant="outline"
-                      className="gap-2"
-                      onClick={() => setDecision("changes_requested")}
-                      disabled={!clientName || !clientEmail}
-                    >
-                      <XCircle className="size-4" aria-hidden="true" />
-                      Request changes
-                    </Button>
-                  </div>
-                </form>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Comments</CardTitle>
-                <CardDescription>
-                  Notes on spread {activeIndex + 1}.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {activeComments.length ? (
-                  activeComments.map((comment, index) => (
-                    <div key={comment.id} className="rounded-lg bg-zinc-50 p-3">
-                      <div className="flex items-center justify-between gap-3">
-                        <p className="text-sm font-medium">
-                          {comment.x !== undefined && comment.y !== undefined
-                            ? `${index + 1}. `
-                            : ""}
+                    <div className="flex items-start gap-2">
+                      {comment.x !== undefined && comment.y !== undefined ? (
+                        <button
+                          type="button"
+                          title="Select this comment pin"
+                          aria-label={"Select comment " + (index + 1)}
+                          className="flex size-5 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-[10px] font-medium"
+                          onClick={() => setSelectedComment(comment.id)}
+                        >
+                          {index + 1}
+                        </button>
+                      ) : null}
+                      <div className="min-w-0 flex-1">
+                        <p className="break-words text-xs font-medium">
                           {comment.authorName}
                         </p>
-                        <p className="text-xs text-zinc-500">
+                        <p className="mt-0.5 text-[11px] text-zinc-400">
                           {formatDateTime(comment.createdAt)}
                         </p>
                       </div>
-                      <p className="mt-2 text-sm text-zinc-700">
-                        {comment.body}
-                      </p>
+                      {comment.resolvedAt ? (
+                        <Check
+                          className="size-3.5 shrink-0 text-teal-700"
+                          aria-label="Resolved"
+                        />
+                      ) : null}
                     </div>
-                  ))
-                ) : (
-                  <p className="rounded-lg border border-dashed p-4 text-sm text-zinc-500">
-                    No comments on this spread yet.
-                  </p>
-                )}
-              </CardContent>
-            </Card>
-          </aside>
-        ) : null}
+                    <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-6 text-zinc-600">
+                      {comment.body}
+                    </p>
+                  </li>
+                ))}
+              </ol>
+            ) : (
+              <p className="py-4 text-sm leading-6 text-zinc-400">
+                No comments on this spread.
+              </p>
+            )}
+          </section>
+
+          <section
+            data-review-decision
+            className="border-t border-zinc-200 p-5"
+          >
+            <h2 className="text-sm font-semibold">Finish your review</h2>
+            <p className="mt-2 text-xs leading-5 text-zinc-500">
+              Your decision is recorded against version{" "}
+              {proof.version.versionNumber}. {unresolvedCount} open{" "}
+              {unresolvedCount === 1 ? "comment" : "comments"} across this
+              album.
+            </p>
+            <Button
+              className="mt-4 w-full"
+              onClick={() => finishReview("approved")}
+            >
+              <CheckCircle2 className="size-4" aria-hidden /> Approve album
+            </Button>
+            <Button
+              variant="outline"
+              className="mt-2 w-full"
+              onClick={() => finishReview("changes_requested")}
+            >
+              Request changes
+            </Button>
+          </section>
+        </aside>
       </div>
+
+      <Dialog
+        open={fullScreen}
+        onOpenChange={(open) => {
+          setFullScreen(open);
+          setZoom(1);
+        }}
+      >
+        <DialogContent
+          showCloseButton={false}
+          onCloseAutoFocus={(event) => {
+            event.preventDefault();
+            requestAnimationFrame(() => {
+              if (composerOpen) composerRef.current?.focus();
+              else
+                document
+                  .querySelector<HTMLButtonElement>(
+                    '[data-proof-root] button[aria-label="Full screen"]',
+                  )
+                  ?.focus();
+            });
+          }}
+          className="inset-0 top-0 left-0 flex h-[100dvh] w-screen max-w-none translate-x-0 translate-y-0 flex-col gap-0 rounded-none bg-zinc-50 p-3 sm:max-w-none sm:p-6"
+        >
+          <DialogTitle className="sr-only">
+            {proof.project.title} full screen
+          </DialogTitle>
+          <DialogDescription className="sr-only">
+            Album spread detail view.
+          </DialogDescription>
+          {albumSurface}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={decisionOpen} onOpenChange={setDecisionOpen}>
+        <DialogContent className="max-h-[90dvh] overflow-y-auto rounded-lg sm:max-w-md">
+          <DialogTitle>
+            {decision === "approved"
+              ? "Approve this album?"
+              : "Request album changes"}
+          </DialogTitle>
+          <DialogDescription>
+            This decision applies to version {proof.version.versionNumber}.
+            {unresolvedCount
+              ? " There are " + unresolvedCount + " open comments."
+              : ""}
+          </DialogDescription>
+          <form action={submitProofDecisionAction} className="space-y-4">
+            <input type="hidden" name="token" value={token} />
+            <input type="hidden" name="decision" value={decision} />
+            <ReviewerFields
+              prefix="decision"
+              nameField="clientName"
+              emailField="clientEmail"
+              name={clientName}
+              email={clientEmail}
+              onChange={changeIdentity}
+            />
+            <div className="space-y-2">
+              <Label htmlFor="decision-message">
+                {decision === "approved"
+                  ? "Approval note (optional)"
+                  : "What needs to change?"}
+              </Label>
+              <Textarea
+                id="decision-message"
+                name="message"
+                maxLength={1200}
+                required={decision === "changes_requested"}
+                rows={3}
+              />
+            </div>
+            {decision === "approved" ? (
+              <label className="flex items-start gap-2 text-sm leading-6 text-zinc-600">
+                <input
+                  type="checkbox"
+                  required
+                  className="mt-1.5 accent-teal-700"
+                />{" "}
+                I approve version {proof.version.versionNumber} for production.
+              </label>
+            ) : null}
+            <SubmitButton pendingLabel="Recording decision...">
+              {decision === "approved"
+                ? "Confirm approval"
+                : "Send change request"}
+            </SubmitButton>
+          </form>
+        </DialogContent>
+      </Dialog>
     </main>
   );
+}
+
+function ReviewerFields({
+  prefix,
+  nameField,
+  emailField,
+  name,
+  email,
+  onChange,
+}: {
+  prefix: string;
+  nameField: string;
+  emailField: string;
+  name: string;
+  email: string;
+  onChange: (name: string, email: string) => void;
+}) {
+  return (
+    <div className="grid gap-3">
+      <div className="space-y-1.5">
+        <Label htmlFor={prefix + "-name"}>Your name</Label>
+        <Input
+          id={prefix + "-name"}
+          name={nameField}
+          autoComplete="name"
+          value={name}
+          required
+          minLength={2}
+          maxLength={100}
+          onChange={(event) => onChange(event.target.value, email)}
+        />
+      </div>
+      <div className="space-y-1.5">
+        <Label htmlFor={prefix + "-email"}>Email</Label>
+        <Input
+          id={prefix + "-email"}
+          name={emailField}
+          autoComplete="email"
+          type="email"
+          value={email}
+          required
+          maxLength={254}
+          onChange={(event) => onChange(name, event.target.value)}
+        />
+      </div>
+    </div>
+  );
+}
+
+function SubmitButton({
+  pendingLabel,
+  children,
+}: {
+  pendingLabel: string;
+  children: ReactNode;
+}) {
+  const { pending } = useFormStatus();
+  return (
+    <Button type="submit" className="w-full" disabled={pending}>
+      {pending ? pendingLabel : children}
+    </Button>
+  );
+}
+
+function AlbumSurface({
+  spread,
+  projectTitle,
+  index,
+  count,
+  zoom,
+  fullScreen,
+  pins,
+  draftPin,
+  selectedPin,
+  onPlacePin,
+  onSelectPin,
+  onMove,
+  onZoom,
+  onFullScreen,
+}: {
+  spread: ProofSession["spreads"][number];
+  projectTitle: string;
+  index: number;
+  count: number;
+  zoom: number;
+  fullScreen: boolean;
+  pins: CanvasComment[];
+  draftPin: SpreadPin | null;
+  selectedPin: string | null;
+  onPlacePin: (pin: SpreadPin) => void;
+  onSelectPin: (id: string) => void;
+  onMove: (index: number) => void;
+  onZoom: (zoom: number) => void;
+  onFullScreen: () => void;
+}) {
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const [bounds, setBounds] = useState({ width: 0, height: 0 });
+  const width = spread.width || 1400;
+  const height = spread.height || 900;
+  const ratio = width / height;
+  const fitWidth = bounds.width
+    ? Math.min(bounds.width, bounds.height * ratio)
+    : 0;
+
+  useEffect(() => {
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+    const observer = new ResizeObserver(() => {
+      setBounds({
+        width: Math.max(1, viewport.clientWidth - 32),
+        height: Math.max(1, viewport.clientHeight - 32),
+      });
+    });
+    observer.observe(viewport);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div className={fullScreen ? "flex min-h-0 flex-1 flex-col" : "min-w-0"}>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-1">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            aria-label="Previous spread"
+            title="Previous spread"
+            disabled={index === 0}
+            onClick={() => onMove(index - 1)}
+          >
+            <ChevronLeft className="size-4" aria-hidden />
+          </Button>
+          <span
+            aria-live="polite"
+            className="min-w-20 text-center text-xs tabular-nums text-zinc-500"
+          >
+            {index + 1} / {count}
+          </span>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            aria-label="Next spread"
+            title="Next spread"
+            disabled={index === count - 1}
+            onClick={() => onMove(index + 1)}
+          >
+            <ChevronRight className="size-4" aria-hidden />
+          </Button>
+        </div>
+        <div className="flex items-center gap-1">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            aria-label="Zoom out"
+            title="Zoom out"
+            disabled={zoom <= 1}
+            onClick={() => onZoom(Math.max(1, zoom - 0.25))}
+          >
+            <Minus className="size-4" aria-hidden />
+          </Button>
+          <span className="w-10 text-center text-xs tabular-nums text-zinc-500">
+            {Math.round(zoom * 100)}%
+          </span>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            aria-label="Zoom in"
+            title="Zoom in"
+            disabled={zoom >= 3}
+            onClick={() => onZoom(Math.min(3, zoom + 0.25))}
+          >
+            <Plus className="size-4" aria-hidden />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            aria-label="Fit spread"
+            title="Fit spread"
+            onClick={() => onZoom(1)}
+          >
+            <Scan className="size-4" aria-hidden />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            aria-label={fullScreen ? "Exit full screen" : "Full screen"}
+            title={fullScreen ? "Exit full screen" : "Full screen"}
+            onClick={onFullScreen}
+          >
+            {fullScreen ? (
+              <Minimize2 className="size-4" aria-hidden />
+            ) : (
+              <Maximize2 className="size-4" aria-hidden />
+            )}
+          </Button>
+        </div>
+      </div>
+      <div
+        ref={viewportRef}
+        data-album-viewport
+        className={
+          "overflow-auto bg-zinc-100/80 p-4 " +
+          (fullScreen ? "min-h-0 flex-1" : "h-[280px] sm:h-[min(62svh,620px)]")
+        }
+      >
+        <div
+          style={{
+            width: fitWidth ? fitWidth * zoom : "100%",
+            marginInline: "auto",
+            marginBlock: fitWidth
+              ? Math.max(0, (bounds.height - (fitWidth / ratio) * zoom) / 2)
+              : 0,
+          }}
+        >
+          <SpreadCanvas
+            key={spread.id + spread.signedUrl}
+            src={spread.signedUrl}
+            alt={projectTitle + " spread " + (index + 1)}
+            width={width}
+            height={height}
+            priority
+            pins={pins}
+            draftPin={draftPin}
+            selectedPin={selectedPin}
+            onPlacePin={onPlacePin}
+            onSelectPin={onSelectPin}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function subscribeReviewerIdentity(listener: () => void) {
+  window.addEventListener("storage", listener);
+  window.addEventListener("album-approve:reviewer", listener);
+  return () => {
+    window.removeEventListener("storage", listener);
+    window.removeEventListener("album-approve:reviewer", listener);
+  };
+}
+
+function parseReviewerIdentity(
+  serialized: string | null,
+  fallback: { name: string; email: string },
+) {
+  try {
+    const saved = JSON.parse(serialized || "null");
+    if (typeof saved?.name === "string" && typeof saved?.email === "string")
+      return saved;
+  } catch {}
+  return fallback;
 }

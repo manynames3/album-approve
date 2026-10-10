@@ -20,6 +20,8 @@ import {
   XCircle,
 } from "lucide-react";
 import { BrandWordmark } from "@/components/brand";
+import { SampleAlbumPreview } from "@/components/marketing/sample-album-preview";
+import { DEMO_ALBUM_ASSETS } from "@/lib/demo-album";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
@@ -64,7 +66,7 @@ const solutionSteps = [
   {
     title: "Upload the exported spreads",
     description:
-      "Add JPG, PNG, or PDF album design files to a client project after the layout is ready for review.",
+      "Add exported JPG or PNG spreads to a client project after the layout is ready for review.",
     icon: FileUp,
   },
   {
@@ -168,7 +170,7 @@ const trustSignals = [
   {
     title: "Private asset routes",
     description:
-      "Album spreads are served through signed routes instead of exposing direct storage keys.",
+      "Uploaded album spreads use signed private routes. The fictional sample album is public.",
     icon: LockKeyhole,
   },
   {
@@ -251,14 +253,14 @@ const faqItems = [
   {
     question: "What does this not do yet?",
     answer:
-      "It does not generate album designs, automate print ordering, provide a full team permission model, or claim compliance certifications. Those are outside the current product scope.",
+      "It does not create album designs or order prints. JPG and PNG spreads show your actual design; PDF imports currently produce page placeholders, not rendered previews. Production auth, durable hosted storage, and rate limits still need configuration before real client work.",
   },
 ];
 
 export default function Home() {
   return (
     <main
-      className="min-h-screen bg-[#fbfaf7] text-zinc-950"
+      className="min-h-screen bg-white text-zinc-950"
       style={{
         fontFamily:
           '"SF Pro Text", -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif',
@@ -304,58 +306,54 @@ export default function Home() {
         </div>
       </nav>
 
-      <section className="mx-auto grid max-w-7xl gap-14 px-4 pb-24 pt-36 sm:px-6 sm:pb-32 min-[980px]:min-h-[100svh] min-[980px]:grid-cols-[0.9fr_1.1fr] min-[980px]:items-center lg:px-8">
-        <div className="max-w-2xl">
-          <Badge
-            variant="outline"
-            className="h-7 rounded-md border-teal-200 bg-teal-50 px-3 text-[0.76rem] font-medium text-teal-800"
-          >
+      <section className="mx-auto max-w-7xl px-4 pt-24 pb-20 sm:px-6 sm:pt-40 sm:pb-28 lg:px-8">
+        <div className="mx-auto max-w-3xl text-center">
+          <p className="text-xs font-medium text-teal-700">
             Wedding album proofing for photographers
-          </Badge>
-          <h1
-            className={`${instrumentSerif.className} mt-7 max-w-[48rem] text-[clamp(2.35rem,5.5vw,4.8rem)] font-normal leading-[1.02] tracking-normal text-zinc-900`}
-          >
-            Get wedding albums approved without the email chase.
-          </h1>
-          <p className="mt-6 max-w-[58ch] text-base leading-7 text-zinc-600 sm:text-lg sm:leading-8">
-            Album Approve helps photographers send one polished proof, collect
-            spread-specific client comments, and capture approval before the
-            album goes to print.
           </p>
-          <div className="mt-8 grid max-w-xl gap-2">
-            {proofPromise.map((item) => (
-              <div
-                key={item}
-                className="flex items-center gap-3 text-sm font-medium text-zinc-700"
-              >
-                <CheckCircle2 className="size-4 text-teal-700" aria-hidden />
-                <span>{item}</span>
-              </div>
-            ))}
-          </div>
-          <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center">
+          <h1
+            className={`${instrumentSerif.className} mt-4 text-[36px] font-normal leading-[1.06] tracking-normal text-zinc-900 sm:text-[56px] lg:text-[64px]`}
+          >
+            Album approvals.
+            <br /> Without the email chase.
+          </h1>
+          <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-zinc-500">
+            Share wedding album designs in one link. Collect precise client
+            feedback and record approval before print.
+          </p>
+          <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
             <Button asChild size="lg" className="gap-2 bg-teal-700 px-5">
               <Link href="/proof/demo-proof-token">
-                View demo proof
-                <ArrowRight className="size-4" aria-hidden="true" />
+                View demo proof <ArrowRight className="size-4" aria-hidden />
               </Link>
             </Button>
             <Button
               asChild
               size="lg"
               variant="outline"
-              className="gap-2 border-zinc-300 bg-white px-5 shadow-none"
+              className="h-8 border-transparent bg-white px-5 text-zinc-600 shadow-none sm:h-10 sm:border-zinc-200"
             >
               <Link href="/sign-up">Try studio workspace</Link>
             </Button>
           </div>
-          <p className="mt-5 max-w-[50ch] text-sm leading-6 text-zinc-500">
-            No payment required for the preview. Use the sample wedding album to
-            inspect the client and studio workflow.
+          <p className="mt-4 text-xs leading-5 text-zinc-400">
+            No payment required. Sample files only.
           </p>
         </div>
-
-        <ProductPreview />
+        <div className="mx-auto mt-6 max-w-6xl sm:mt-16">
+          <SampleAlbumPreview />
+          <div className="mt-6 flex flex-wrap justify-center gap-x-8 gap-y-2">
+            {proofPromise.map((item) => (
+              <span
+                key={item}
+                className="flex items-center gap-2 text-xs text-zinc-500"
+              >
+                <CheckCircle2 className="size-3.5 text-teal-700" aria-hidden />
+                {item}
+              </span>
+            ))}
+          </div>
+        </div>
       </section>
 
       <section
@@ -368,11 +366,14 @@ export default function Home() {
             title="Album feedback is too expensive to interpret by hand."
             description="Your clients are not trying to be difficult. The old workflow gives them too many ways to describe a visual change without keeping that note attached to the spread."
           />
-          <div className="mt-10 grid gap-px overflow-hidden rounded-lg border border-zinc-200 bg-zinc-200 md:grid-cols-3">
+          <div className="mt-10 grid gap-8 md:grid-cols-3">
             {painfulWorkflow.map((item) => (
-              <article key={item.title} className="bg-white p-6">
+              <article
+                key={item.title}
+                className="border-t border-zinc-200 pt-6"
+              >
                 <XCircle className="size-5 text-zinc-400" aria-hidden />
-                <h3 className="mt-8 text-base font-semibold">{item.title}</h3>
+                <h3 className="mt-4 text-base font-semibold">{item.title}</h3>
                 <p className="mt-3 text-sm leading-6 text-zinc-600">
                   {item.description}
                 </p>
@@ -392,11 +393,14 @@ export default function Home() {
             title="A clear path from exported spread to final approval."
             description="Album Approve starts after the design is ready. It gives the studio a review surface, not another generic project board."
           />
-          <div className="grid gap-px overflow-hidden rounded-lg border border-zinc-200 bg-zinc-200 md:grid-cols-3">
+          <div className="grid gap-8 md:grid-cols-3">
             {solutionSteps.map((item, index) => {
               const Icon = item.icon;
               return (
-                <article key={item.title} className="bg-[#fbfaf7] p-6">
+                <article
+                  key={item.title}
+                  className="border-t border-zinc-200 pt-6"
+                >
                   <div className="flex items-center justify-between gap-3">
                     <Icon className="size-5 text-teal-700" aria-hidden />
                     <span className="text-xs font-semibold text-zinc-400">
@@ -427,15 +431,19 @@ export default function Home() {
 
       <section className="mx-auto max-w-7xl px-4 py-24 sm:px-6 sm:py-32 lg:px-8">
         <div className="grid gap-10 lg:grid-cols-[1.08fr_0.92fr] lg:items-center">
-          <div className="overflow-hidden rounded-lg border border-zinc-200 bg-white p-2 shadow-[0_18px_55px_rgba(24,24,27,0.07)]">
+          <figure className="min-w-0">
             <Image
-              src="/proofalbum-proofing.png"
-              alt="Album Approve client proof page showing a wedding album spread with comments and decision controls"
-              width={1600}
-              height={1000}
-              className="aspect-[16/10] w-full rounded-md object-cover object-top"
+              src={DEMO_ALBUM_ASSETS[2].src}
+              alt="The full, uncropped portrait spread from the generated sample wedding album"
+              width={DEMO_ALBUM_ASSETS[2].width}
+              height={DEMO_ALBUM_ASSETS[2].height}
+              unoptimized
+              className="h-auto w-full border border-zinc-200 shadow-[0_10px_36px_rgba(24,24,27,0.06)]"
             />
-          </div>
+            <figcaption className="mt-3 text-xs text-zinc-400">
+              Portraits from the generated sample wedding album.
+            </figcaption>
+          </figure>
           <SectionIntro
             eyebrow="Client experience"
             title="Clients review the album where the album actually is."
@@ -465,9 +473,12 @@ export default function Home() {
             title="This solves the review surface, not just the admin around it."
             description="Generic tools can help after feedback exists. Album Approve is where the client creates clear feedback in the first place."
           />
-          <div className="grid gap-px overflow-hidden rounded-lg border border-zinc-200 bg-zinc-200 md:grid-cols-2">
+          <div className="grid gap-8 md:grid-cols-2">
             {differentiation.map((item) => (
-              <article key={item.question} className="bg-[#fbfaf7] p-6">
+              <article
+                key={item.question}
+                className="border-t border-zinc-200 pt-6"
+              >
                 <h3 className="text-base font-semibold">{item.question}</h3>
                 <p className="mt-3 text-sm leading-6 text-zinc-600">
                   {item.answer}
@@ -529,11 +540,11 @@ export default function Home() {
               rate limits.
             </p>
           </div>
-          <div className="grid gap-px overflow-hidden rounded-lg border border-zinc-200 bg-zinc-200 md:grid-cols-3">
+          <div className="grid gap-8 md:grid-cols-3">
             {pricingPlans.map((plan) => (
               <article
                 key={plan.name}
-                className={`bg-white p-6 ${
+                className={`border-t border-zinc-200 pt-6 ${
                   plan.featured ? "shadow-[inset_0_0_0_1px_#0f766e]" : ""
                 }`}
               >
@@ -578,9 +589,12 @@ export default function Home() {
             title="Straight answers before you trust this with client work."
             description="Use the preview to judge the proofing workflow. Production use should be configured before this replaces your current client album process."
           />
-          <div className="mt-10 grid gap-px overflow-hidden rounded-lg border border-zinc-200 bg-zinc-200 lg:grid-cols-2">
+          <div className="mt-10 grid gap-8 lg:grid-cols-2">
             {faqItems.map((item) => (
-              <article key={item.question} className="bg-white p-6">
+              <article
+                key={item.question}
+                className="border-t border-zinc-200 pt-6"
+              >
                 <h3 className="text-base font-semibold">{item.question}</h3>
                 <p className="mt-3 text-sm leading-6 text-zinc-600">
                   {item.answer}
@@ -591,14 +605,14 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="px-4 py-24 sm:px-6 sm:py-32 lg:px-8">
-        <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-8 rounded-lg border border-zinc-200 bg-zinc-950 p-6 text-white shadow-[0_18px_50px_rgba(24,24,27,0.12)] sm:p-8 md:flex-row md:items-center">
+      <section className="bg-zinc-950 px-4 py-24 text-white sm:px-6 sm:py-32 lg:px-8">
+        <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-8 md:flex-row md:items-center">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-teal-300">
               Ready to inspect the workflow?
             </p>
             <h2
-              className={`${instrumentSerif.className} mt-4 max-w-3xl text-[clamp(1.8rem,3vw,2.75rem)] font-normal leading-[1.08] tracking-normal`}
+              className={`${instrumentSerif.className} mt-4 max-w-3xl text-[28px] sm:text-[40px] font-normal leading-[1.08] tracking-normal`}
             >
               Open the sample proof, then view the studio workspace behind it.
             </h2>
@@ -632,66 +646,6 @@ export default function Home() {
   );
 }
 
-function ProductPreview() {
-  return (
-    <div className="min-[980px]:pt-20">
-      <div className="overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-[0_18px_55px_rgba(24,24,27,0.08)]">
-        <div className="flex h-9 items-center gap-2 border-b border-zinc-200 bg-zinc-50 px-4">
-          <span className="size-2.5 rounded-full bg-zinc-300" />
-          <span className="size-2.5 rounded-full bg-zinc-300" />
-          <span className="size-2.5 rounded-full bg-zinc-300" />
-          <span className="ml-3 text-[0.65rem] font-semibold uppercase tracking-[0.26em] text-zinc-400">
-            Client proof preview
-          </span>
-        </div>
-        <Image
-          src="/proofalbum-proofing.png"
-          alt="Album Approve client proofing page with a flip-through album spread and comment controls"
-          width={1600}
-          height={1000}
-          priority
-          className="aspect-[16/10] w-full object-cover object-top"
-        />
-      </div>
-      <div className="mt-3 grid gap-3 sm:grid-cols-3">
-        <PreviewDetail
-          title="Open"
-          description="The client reviews the album from one private link."
-          icon={Link2}
-        />
-        <PreviewDetail
-          title="Comment"
-          description="Notes stay attached to the spread they describe."
-          icon={MessageSquareText}
-        />
-        <PreviewDetail
-          title="Approve"
-          description="The decision is tied to the reviewed version."
-          icon={CheckCircle2}
-        />
-      </div>
-    </div>
-  );
-}
-
-function PreviewDetail({
-  title,
-  description,
-  icon: Icon,
-}: {
-  title: string;
-  description: string;
-  icon: React.ComponentType<{ className?: string; "aria-hidden"?: boolean }>;
-}) {
-  return (
-    <div className="rounded-lg border border-zinc-200 bg-white px-4 py-3">
-      <Icon className="size-4 text-teal-700" aria-hidden />
-      <p className="mt-3 text-sm font-semibold">{title}</p>
-      <p className="mt-1 text-xs leading-5 text-zinc-500">{description}</p>
-    </div>
-  );
-}
-
 function SectionIntro({
   eyebrow,
   title,
@@ -707,7 +661,7 @@ function SectionIntro({
         {eyebrow}
       </p>
       <h2
-        className={`${instrumentSerif.className} mt-4 text-[clamp(1.55rem,3vw,2.55rem)] font-normal leading-[1.1] tracking-normal text-zinc-900`}
+        className={`${instrumentSerif.className} mt-4 text-[32px] sm:text-[40px] font-normal leading-[1.1] tracking-normal text-zinc-900`}
       >
         {title}
       </h2>
@@ -730,13 +684,11 @@ function IconGrid({
   className?: string;
 }) {
   return (
-    <div
-      className={`grid gap-px overflow-hidden rounded-lg border border-zinc-200 bg-zinc-200 ${className || ""}`}
-    >
+    <div className={`grid gap-8 ${className || ""}`}>
       {items.map((item) => {
         const Icon = item.icon;
         return (
-          <article key={item.title} className="bg-[#fbfaf7] p-6">
+          <article key={item.title} className="border-t border-zinc-200 pt-6">
             <Icon className="size-5 text-zinc-500" aria-hidden />
             <h3 className="mt-8 text-base font-semibold">{item.title}</h3>
             <p className="mt-3 text-sm leading-6 text-zinc-600">

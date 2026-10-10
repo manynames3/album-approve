@@ -1,0 +1,110 @@
+name: Album experience review
+
+on:
+  push:
+    branches: [codex/photographic-album-experience]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: album-review-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      PROOFALBUM_SECRET: disposable-ci-proof-secret-not-for-production
+      NEXT_PUBLIC_APP_URL: http://127.0.0.1:4317
+      PLAYWRIGHT_MODULE: /tmp/album-visual-tools/node_modules/playwright
+      NEXT_TELEMETRY_DISABLED: 1
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Prepare optimized sample assets
+        run: npm run assets:demo
+      - name: Format the scoped implementation
+        run: npm exec prettier -- --write src/lib/demo-album-assets.json src/lib/demo-album.ts src/server/store.ts src/server/storage.ts src/lib/demo-album.test.ts src/server/proofalbum.test.ts scripts/prepare-demo-assets.mjs package.json src/components/proof/spread-canvas.tsx src/components/proof/proof-viewer.tsx src/components/marketing/sample-album-preview.tsx src/app/page.tsx src/components/dashboard/spread-manager.tsx docs/sample-assets.md README.md scripts/verify-album-visuals.mjs src/app/actions/proof.ts src/app/actions/dashboard.ts src/app/actions/dashboard.test.ts src/app/dashboard/projects/\[projectId\]/page.tsx
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - name: Install browser tools outside application dependencies
+        run: npm install --prefix /tmp/album-visual-tools --no-package-lock playwright@1.58.2
+      - name: Install Chromium
+        run: /tmp/album-visual-tools/node_modules/.bin/playwright install --with-deps chromium
+      - name: Check real review flows and desktop/mobile visuals
+        timeout-minutes: 5
+        run: node scripts/verify-album-visuals.mjs
+      - run: git diff --check
+      - run: git diff HEAD~1 HEAD --check
+      - uses: actions/upload-artifact@v4
+        with:
+          name: album-review-assets
+          path: |
+            public/demo/maya-liam/*.webp
+            src/lib/demo-album-assets.json
+            public/product/*.webp
+            docs/visual-review/report.json
+            src/lib/demo-album.ts
+            src/server/store.ts
+            src/server/storage.ts
+            src/lib/demo-album.test.ts
+            src/server/proofalbum.test.ts
+            scripts/prepare-demo-assets.mjs
+            package.json
+            src/components/proof/spread-canvas.tsx
+            src/components/proof/proof-viewer.tsx
+            src/components/marketing/sample-album-preview.tsx
+            src/app/page.tsx
+            src/components/dashboard/spread-manager.tsx
+            docs/sample-assets.md
+            README.md
+            scripts/verify-album-visuals.mjs
+            src/app/actions/proof.ts
+            src/app/actions/dashboard.ts
+            src/app/actions/dashboard.test.ts
+            src/app/dashboard/projects/[projectId]/page.tsx
+          retention-days: 14
+
+  publish-review-assets:
+    needs: verify
+    if: github.event_name == 'push' && github.ref == 'refs/heads/codex/photographic-album-experience'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: codex/photographic-album-experience
+      - uses: actions/download-artifact@v4
+        with:
+          name: album-review-assets
+          path: .
+      - name: Commit verified visuals to the review branch only
+        env:
+          VERIFIED_SHA: ${{ github.sha }}
+        run: |
+          if [ "$(git rev-parse HEAD)" != "$VERIFIED_SHA" ]; then
+            echo "Review branch moved; refusing to publish stale captures."
+            exit 1
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/demo/maya-liam public/product docs/visual-review/report.json src/lib/demo-album-assets.json src/lib/demo-album.ts src/server/store.ts src/server/storage.ts src/lib/demo-album.test.ts src/server/proofalbum.test.ts scripts/prepare-demo-assets.mjs package.json src/components/proof/spread-canvas.tsx src/components/proof/proof-viewer.tsx src/components/marketing/sample-album-preview.tsx src/app/page.tsx src/components/dashboard/spread-manager.tsx docs/sample-assets.md README.md scripts/verify-album-visuals.mjs src/app/actions/proof.ts src/app/actions/dashboard.ts src/app/actions/dashboard.test.ts "src/app/dashboard/projects/[projectId]/page.tsx"
+          if git diff --cached --quiet; then
+            echo "Visual assets are already current."
+          else
+            git commit -m "Format album experience and add verified product visuals"
+            git push origin HEAD:codex/photographic-album-experience
+          fi

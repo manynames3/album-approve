@@ -1,0 +1,68 @@
+{
+  "sourceCommit": "3a1d39a961fcbe0b17dd0d66024332d89190f309",
+  "capturedAt": "2026-10-10T05:43:14.935Z",
+  "checks": [
+    "Desktop homepage fits without overflow",
+    "Desktop proof preserves album proportions",
+    "Rendered Opening sample spread",
+    "Rendered Ceremony sample spread",
+    "Rendered Portraits sample spread",
+    "Rendered Reception sample spread",
+    "Full-screen spread fits the viewport",
+    "Full-screen zoom, fit, Escape, and focus return work",
+    "Pinned comment saves and returns to the correct spread",
+    "Changes require a note; approval requires confirmation and records a decision",
+    "Homepage at 768px",
+    "Proof at 768px",
+    "Full-screen proof at 768px",
+    "Homepage at 390px",
+    "Proof at 390px",
+    "Full-screen proof at 390px",
+    "Homepage at 320px",
+    "Proof at 320px",
+    "Full-screen proof at 320px",
+    "Studio sign-in/project flow and uncropped thumbnails remain intact",
+    "Private upload at aspect ratio 600:900",
+    "Private upload at aspect ratio 1200:400",
+    "All sample assets load with correct metadata and lightweight thumbnails",
+    "No browser runtime errors"
+  ],
+  "captures": [
+    {
+      "name": "landing-desktop",
+      "width": 1440,
+      "height": 1000,
+      "bytes": 96026
+    },
+    {
+      "name": "proof-desktop",
+      "width": 1440,
+      "height": 1000,
+      "bytes": 103620
+    },
+    {
+      "name": "comments-detail",
+      "width": 1425,
+      "height": 873,
+      "bytes": 139354
+    },
+    {
+      "name": "approval-detail",
+      "width": 449,
+      "height": 434,
+      "bytes": 12138
+    },
+    {
+      "name": "landing-mobile",
+      "width": 390,
+      "height": 844,
+      "bytes": 44872
+    },
+    {
+      "name": "proof-mobile",
+      "width": 390,
+      "height": 844,
+      "bytes": 35028
+    }
+  ]
+}

@@ -43,7 +43,7 @@ export default async function ProjectPage({
   searchParams,
 }: {
   params: Promise<{ projectId: string }>;
-  searchParams: Promise<{ shareToken?: string }>;
+  searchParams: Promise<{ shareToken?: string; updatedSpread?: string }>;
 }) {
   const user = await getCurrentUser();
   if (!user) {
@@ -51,7 +51,7 @@ export default async function ProjectPage({
   }
 
   const { projectId } = await params;
-  const { shareToken } = await searchParams;
+  const { shareToken, updatedSpread } = await searchParams;
   const project = await getProjectDetail(user.id, projectId);
   const latestVersion = project.versions[0];
   const newShareUrl = shareToken ? absoluteUrl(`/proof/${shareToken}`) : null;
@@ -134,6 +134,12 @@ export default async function ProjectPage({
           </div>
         </div>
       </section>
+
+      {updatedSpread && latestVersion?.spreads.some((spread) => spread.id === updatedSpread) ? (
+        <p role="status" className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+          Replacement saved. The client proof now shows the updated spread.
+        </p>
+      ) : null}
 
       {newShareUrl ? (
         <Card className="border-teal-200 bg-teal-50">
