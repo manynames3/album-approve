@@ -299,7 +299,6 @@ export function ProofViewer({ proof, token, defaultName, defaultEmail, submitted
           event.preventDefault();
           requestAnimationFrame(() => {
             if (composerOpen) composerRef.current?.focus();
-            else if (selectedComment) document.getElementById("comment-" + selectedComment)?.focus();
             else document.querySelector<HTMLButtonElement>('[data-proof-root] button[aria-label="Full screen"]')?.focus();
           });
         }} className="inset-0 top-0 left-0 flex h-[100dvh] w-screen max-w-none translate-x-0 translate-y-0 flex-col gap-0 rounded-none bg-zinc-50 p-3 sm:max-w-none sm:p-6">

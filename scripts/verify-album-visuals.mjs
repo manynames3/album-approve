@@ -186,7 +186,7 @@ try {
     }).png().toBuffer();
     await page.locator("#replacement-spread_cover").setInputFiles({ name: filename, mimeType: "image/png", buffer: fixture });
     await page.getByRole("button", { name: /Replace 0?1-|Replace aspect-check-/ }).click();
-    await page.getByText(filename, { exact: true }).waitFor();
+    await page.locator("figure:has(#replacement-spread_cover) figcaption p").filter({ hasText: filename }).first().waitFor();
     await page.goto(base + "/proof/demo-proof-token");
     await ready(page);
     const uploaded = page.locator("[data-spread-canvas] img");
