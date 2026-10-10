@@ -74,6 +74,7 @@ jobs:
             src/app/actions/proof.ts
             src/app/actions/dashboard.ts
             src/app/actions/dashboard.test.ts
+            src/app/dashboard/projects/[projectId]/page.tsx
           retention-days: 14
 
   publish-review-assets:
@@ -100,7 +101,7 @@ jobs:
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add public/demo/maya-liam public/product docs/visual-review/report.json src/lib/demo-album-assets.json src/lib/demo-album.ts src/server/store.ts src/server/storage.ts src/lib/demo-album.test.ts src/server/proofalbum.test.ts scripts/prepare-demo-assets.mjs package.json src/components/proof/spread-canvas.tsx src/components/proof/proof-viewer.tsx src/components/marketing/sample-album-preview.tsx src/app/page.tsx src/components/dashboard/spread-manager.tsx docs/sample-assets.md README.md scripts/verify-album-visuals.mjs src/app/actions/proof.ts
+          git add public/demo/maya-liam public/product docs/visual-review/report.json src/lib/demo-album-assets.json src/lib/demo-album.ts src/server/store.ts src/server/storage.ts src/lib/demo-album.test.ts src/server/proofalbum.test.ts scripts/prepare-demo-assets.mjs package.json src/components/proof/spread-canvas.tsx src/components/proof/proof-viewer.tsx src/components/marketing/sample-album-preview.tsx src/app/page.tsx src/components/dashboard/spread-manager.tsx docs/sample-assets.md README.md scripts/verify-album-visuals.mjs src/app/actions/proof.ts src/app/actions/dashboard.ts src/app/actions/dashboard.test.ts "src/app/dashboard/projects/[projectId]/page.tsx"
           if git diff --cached --quiet; then
             echo "Visual assets are already current."
           else
