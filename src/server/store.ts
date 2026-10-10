@@ -868,7 +868,7 @@ export async function replaceSpread(
 
   const bytes = Buffer.from(await input.file.arrayBuffer());
   const extension = path.extname(input.file.name).toLowerCase();
-  const storageKey = `${project.studioId}/${project.id}/${version.id}/${spread.id}-replacement${extension}`;
+  const storageKey = `${project.studioId}/${project.id}/${version.id}/${spread.id}-${createId("replacement")}${extension}`;
   const dimensions = detectImageDimensions(bytes, input.file.type);
 
   await writeStoredAsset(storageKey, bytes);

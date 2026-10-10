@@ -188,19 +188,10 @@ try {
       create: { ...dimensions, channels: 3, background: "#5c7c74" },
     }).png().toBuffer();
     await page.locator("#replacement-spread_cover").setInputFiles({ name: filename, mimeType: "image/png", buffer: fixture });
-    console.log("REPLACEMENT_FORM:" + JSON.stringify(await page.locator("#replacement-spread_cover").evaluate((el) => ({
-      files: [...el.files].map((file) => ({ name: file.name, type: file.type, bytes: file.size })),
-      valid: el.form.checkValidity(),
-      fields: [...new FormData(el.form)].map(([key, value]) => [key, typeof value === "string" ? value : { name: value.name, bytes: value.size }]),
-      buttonType: el.form.querySelector("button")?.type,
-    }))));
     const responsePromise = page.waitForResponse((response) => response.request().method() === "POST" && response.url().includes("/dashboard/projects/"), { timeout: 15000 });
     await page.getByRole("button", { name: /Replace 0?1-|Replace aspect-check-/ }).click();
     const actionResponse = await responsePromise;
-    console.log("REPLACEMENT_RESPONSE:" + JSON.stringify({
-      status: actionResponse.status(), headers: actionResponse.headers(),
-    }));
-    console.log("REPLACEMENT_STORE:" + JSON.stringify(JSON.parse(await readFile(path.join(root, ".data/proofalbum-demo.json"), "utf8")).spreads.find((spread) => spread.id === "spread_cover")));
+    assert(actionResponse.status() < 400, "Replacement request failed");
     await page.locator("figure:has(#replacement-spread_cover) figcaption p").filter({ hasText: filename }).first().waitFor();
     await page.goto(base + "/proof/demo-proof-token");
     await ready(page);

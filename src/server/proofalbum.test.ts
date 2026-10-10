@@ -125,6 +125,16 @@ describe("ProofAlbum demo store", () => {
     expect(proof?.spreads[0].width).toBe(1);
     expect(proof?.spreads[0].height).toBe(1);
     expect(proof?.spreads[0].signedUrl).toMatch(/^\/api\/assets\//);
+    const firstKey = proof?.spreads[0].storageKey;
+    await replaceSpread(DEMO_USER_ID, {
+      projectId: "project_harper_album",
+      albumVersionId: "version_harper_v1",
+      spreadId: "spread_cover",
+      file,
+    });
+    const updated = await getProofByToken(DEMO_SHARE_TOKEN);
+    expect(updated?.spreads[0].storageKey).not.toBe(firstKey);
+    expect(updated?.spreads[0].signedUrl).not.toBe(proof?.spreads[0].signedUrl);
   });
 
 });

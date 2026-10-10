@@ -150,6 +150,7 @@ export async function replaceSpreadAction(formData: FormData) {
 
   await replaceSpread(userId, { ...input, file });
   revalidatePath(`/dashboard/projects/${input.projectId}`);
+  redirect(`/dashboard/projects/${input.projectId}#spread-${input.spreadId}`);
 }
 
 export async function createShareLinkAction(formData: FormData) {
