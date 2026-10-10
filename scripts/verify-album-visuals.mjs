@@ -22,10 +22,21 @@ let serverLog = "";
 server.stdout.on("data", (data) => { serverLog += data; });
 server.stderr.on("data", (data) => { serverLog += data; });
 let browser;
+let activePage;
 
 async function ready(page) {
   await page.evaluate(() => document.fonts.ready);
-  await page.waitForFunction(() => [...document.querySelectorAll("[data-spread-canvas] img")].every((img) => img.complete && img.naturalWidth > 0));
+  await page.waitForFunction(() => {
+    const images = [...document.querySelectorAll("[data-spread-canvas] img")];
+    return images.length > 0 && images.every((img) =>
+      img.complete && img.naturalWidth > 0 &&
+      img.getBoundingClientRect().width > 0 &&
+      !img.parentElement.querySelector('[role="status"]'),
+    );
+  });
+  await page.evaluate(() => new Promise((resolve) =>
+    requestAnimationFrame(() => requestAnimationFrame(resolve)),
+  ));
 }
 
 async function checkLayout(page, label) {
@@ -71,6 +82,7 @@ try {
   browser = await chromium.launch();
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, timezoneId: "UTC", reducedMotion: "reduce" });
   const page = await context.newPage();
+  activePage = page;
   const browserErrors = [];
   page.on("pageerror", (error) => browserErrors.push(error.message));
 
@@ -167,6 +179,25 @@ try {
   assert(studioRatios.length >= 4 && studioRatios.every((fit) => fit === "contain"), "Studio previews crop designs");
   report.checks.push("Studio sign-in/project flow and uncropped thumbnails remain intact");
 
+  for (const dimensions of [{ width: 600, height: 900 }, { width: 1200, height: 400 }]) {
+    const filename = "aspect-check-" + dimensions.width + "x" + dimensions.height + ".png";
+    const fixture = await sharp({
+      create: { ...dimensions, channels: 3, background: "#5c7c74" },
+    }).png().toBuffer();
+    await page.locator("#replacement-spread_cover").setInputFiles({ name: filename, mimeType: "image/png", buffer: fixture });
+    await page.getByRole("button", { name: /Replace 0?1-|Replace aspect-check-/ }).click();
+    await page.getByText(filename, { exact: true }).waitFor();
+    await page.goto(base + "/proof/demo-proof-token");
+    await ready(page);
+    const uploaded = page.locator("[data-spread-canvas] img");
+    assert((await uploaded.getAttribute("src")).startsWith("/api/assets/"), "Uploaded replacement became public");
+    const natural = await uploaded.evaluate((img) => ({ width: img.naturalWidth, height: img.naturalHeight }));
+    assert.deepEqual(natural, dimensions);
+    await checkLayout(page, "Private upload at aspect ratio " + dimensions.width + ":" + dimensions.height);
+    await page.goto(base + "/dashboard/projects/project_harper_album");
+    await page.getByText("Album design files", { exact: true }).waitFor();
+  }
+
   const catalog = JSON.parse(await readFile(path.join(root, "src/lib/demo-album-assets.json"), "utf8"));
   for (const asset of catalog) {
     const full = await readFile(path.join(root, "public", asset.src));
@@ -182,6 +213,15 @@ try {
 } catch (error) {
   console.error(error);
   console.error(serverLog);
+  if (activePage && !activePage.isClosed()) {
+    console.error("PAGE_DIAGNOSTICS:" + JSON.stringify(await activePage.evaluate(() => ({
+      title: document.title, body: document.body.innerText.slice(0,4000),
+      images: [...document.images].map((img) => ({ src: img.getAttribute("src"), loaded: img.complete, width: img.naturalWidth })),
+    }))));
+    const failure = await activePage.screenshot();
+    const small = await sharp(failure).resize({ width: 1000, withoutEnlargement: true }).webp({ quality: 65 }).toBuffer();
+    console.log("VISUAL_FAILURE_IMAGE:" + small.toString("base64"));
+  }
   throw error;
 } finally {
   await browser?.close();
