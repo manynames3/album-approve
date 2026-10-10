@@ -72,7 +72,7 @@ export function SampleAlbumPreview() {
           </Link>
         </aside>
       </div>
-      <p className="border-t border-zinc-200 px-4 py-2.5 text-[11px] leading-5 text-zinc-400 sm:px-6">Generated wedding imagery. Interactive sample preview, not a customer testimonial.</p>
+      <p className="border-t border-zinc-200 px-4 py-2.5 text-[11px] leading-5 text-zinc-400 sm:px-6">Fictional wedding · Generated sample imagery.</p>
     </div>
   );
 }

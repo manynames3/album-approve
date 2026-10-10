@@ -1,5 +1,6 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
@@ -7,7 +8,7 @@ const require = createRequire(import.meta.url);
 const sharp = require(require.resolve("sharp", {
   paths: [path.dirname(require.resolve("next/package.json"))],
 }));
-const root = path.resolve(import.meta.dirname, "..");
+const root = fileURLToPath(new URL("../", import.meta.url));
 const catalogPath = path.join(root, "src/lib/demo-album-assets.json");
 const assets = JSON.parse(await readFile(catalogPath, "utf8"));
 const outputDir = path.join(root, "public/demo/maya-liam");

@@ -3,11 +3,12 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { spawn } from "node:child_process";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const require = createRequire(import.meta.url);
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || "playwright");
 const sharp = require(require.resolve("sharp", { paths: [path.dirname(require.resolve("next/package.json"))] }));
-const root = path.resolve(import.meta.dirname, "..");
+const root = fileURLToPath(new URL("../", import.meta.url));
 const output = path.join(root, "public/product");
 const reportDir = path.join(root, "docs/visual-review");
 const base = "http://127.0.0.1:4317";

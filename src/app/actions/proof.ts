@@ -32,7 +32,7 @@ export async function unlockProofAction(formData: FormData) {
 export async function addProofCommentAction(formData: FormData) {
   const input = proofCommentSchema.parse({
     token: formData.get("token"),
-    password: formData.get("password"),
+    password: formData.get("password") || undefined,
     spreadId: formData.get("spreadId"),
     authorName: formData.get("authorName"),
     authorEmail: formData.get("authorEmail"),
@@ -53,7 +53,7 @@ export async function addProofCommentAction(formData: FormData) {
 export async function submitProofDecisionAction(formData: FormData) {
   const input = proofDecisionSchema.parse({
     token: formData.get("token"),
-    password: formData.get("password"),
+    password: formData.get("password") || undefined,
     clientName: formData.get("clientName"),
     clientEmail: formData.get("clientEmail"),
     decision: formData.get("decision"),
