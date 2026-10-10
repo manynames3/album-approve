@@ -24,6 +24,7 @@ server.stdout.on("data", (data) => { serverLog += data; });
 server.stderr.on("data", (data) => { serverLog += data; });
 let browser;
 let activePage;
+const clientDiagnostics = [];
 
 async function ready(page) {
   await page.evaluate(() => document.fonts.ready);
@@ -87,7 +88,9 @@ try {
   page.setDefaultTimeout(15000);
   page.setDefaultNavigationTimeout(30000);
   const browserErrors = [];
-  page.on("pageerror", (error) => browserErrors.push(error.message));
+  page.on("pageerror", (error) => { browserErrors.push(error.message); clientDiagnostics.push({ type: "pageerror", message: error.message }); });
+  page.on("console", (message) => { if (["error", "warning"].includes(message.type())) clientDiagnostics.push({ type: message.type(), message: message.text() }); });
+  page.on("requestfailed", (request) => clientDiagnostics.push({ type: "requestfailed", url: request.url(), method: request.method(), failure: request.failure() }));
 
   await page.goto(base + "/");
   await ready(page);
@@ -192,6 +195,7 @@ try {
     await page.getByRole("button", { name: /Replace 0?1-|Replace aspect-check-/ }).click();
     const actionResponse = await responsePromise;
     assert(actionResponse.status() < 400, "Replacement request failed");
+    console.log("UPLOAD_RESPONSE:" + JSON.stringify({ status: actionResponse.status(), headers: actionResponse.headers() }));
     await page.locator("figure:has(#replacement-spread_cover) figcaption p").filter({ hasText: filename }).first().waitFor();
     await page.goto(base + "/proof/demo-proof-token");
     await ready(page);
@@ -219,6 +223,7 @@ try {
 } catch (error) {
   console.error(error);
   console.error(serverLog);
+  console.error("CLIENT_DIAGNOSTICS:" + JSON.stringify(clientDiagnostics));
   if (activePage && !activePage.isClosed()) {
     console.error("PAGE_DIAGNOSTICS:" + JSON.stringify(await activePage.evaluate(() => ({
       title: document.title, body: document.body.innerText.slice(0,4000),
