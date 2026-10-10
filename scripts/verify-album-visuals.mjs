@@ -195,7 +195,11 @@ try {
     const responsePromise = page.waitForResponse((response) => response.request().method() === "POST" && response.url().includes("/dashboard/projects/"), { timeout: 15000 });
     await page.getByRole("button", { name: /Replace 0?1-|Replace aspect-check-/ }).click();
     const actionResponse = await responsePromise;
-    console.log("REPLACEMENT_RESPONSE:" + actionResponse.status() + ":" + (await actionResponse.text()).slice(-5000));
+    console.log("REPLACEMENT_RESPONSE:" + JSON.stringify({
+      status: actionResponse.status(), headers: actionResponse.headers(),
+    }));
+    await actionResponse.finished();
+    console.log("REPLACEMENT_STORE:" + JSON.stringify(JSON.parse(await readFile(path.join(root, ".data/proofalbum-demo.json"), "utf8")).spreads.find((spread) => spread.id === "spread_cover")));
     await page.locator("figure:has(#replacement-spread_cover) figcaption p").filter({ hasText: filename }).first().waitFor();
     await page.goto(base + "/proof/demo-proof-token");
     await ready(page);
