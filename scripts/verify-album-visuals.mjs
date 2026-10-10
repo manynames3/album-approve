@@ -207,7 +207,7 @@ try {
     await page.getByRole("button", { name: /Replace 0?1-|Replace aspect-check-/ }).click();
     const actionResponse = await responsePromise;
     assert(actionResponse.status() < 400, "Replacement request failed");
-    await page.waitForURL(/updatedSpread=spread_cover#spread-spread_cover$/);
+    await page.waitForFunction(() => new URL(location.href).searchParams.get("updatedSpread") === "spread_cover" && location.hash === "#spread-spread_cover");
     await page.getByRole("status").filter({ hasText: "Replacement saved." }).waitFor();
     await page.locator("figure:has(#replacement-spread_cover) figcaption p").filter({ hasText: filename }).first().waitFor();
     await page.goto(base + "/proof/demo-proof-token");
@@ -246,7 +246,7 @@ try {
   console.error("CLIENT_DIAGNOSTICS:" + JSON.stringify(clientDiagnostics));
   if (activePage && !activePage.isClosed()) {
     console.error("PAGE_DIAGNOSTICS:" + JSON.stringify(await activePage.evaluate(() => ({
-      title: document.title, body: document.body.innerText.slice(0,4000),
+      href: location.href, title: document.title, body: document.body.innerText.slice(0,4000),
       images: [...document.images].map((img) => ({ src: img.getAttribute("src"), loaded: img.complete, width: img.naturalWidth })),
     }))));
     const failure = await activePage.screenshot();
