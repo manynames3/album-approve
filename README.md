@@ -6,7 +6,9 @@ Album Approve is a full-stack album proofing app for wedding and portrait photog
 
 Album Approve replaces scattered album review threads with one visual approval workflow: upload spreads, send a private proof link, collect exact client comments, and capture the final decision. The current repository includes a polished product landing page, a seeded preview workflow, secure guest proof links, signed private asset delivery, Stripe/Resend/Supabase integration boundaries, automated tests, architecture docs, and a Cloudflare Workers deployment path.
 
-![Album Approve proofing screen](public/proofalbum-proofing.png)
+![Album Approve client proof with the generated sample wedding album](public/product/proof-desktop.webp)
+
+The four sample wedding spreads use generated imagery of fictional people. Uploaded client files remain private. See [sample assets and visual review](docs/sample-assets.md) for asset provenance and screenshot regeneration.
 
 ## Demo
 
@@ -69,7 +71,8 @@ src/app/                 Next.js routes, Server Actions, and API route handlers
 src/components/          Proofing UI, dashboard UI, and shared primitives
 src/server/              Auth, store, storage, billing, email, security, schemas
 src/lib/                 Formatting and utility helpers
-scripts/                 Preview seed script
+scripts/                 Demo seed, asset optimization, and browser review
+assets/demo/             Original generated wedding album spreads
 supabase/migrations/     Initial Postgres schema and RLS starter policies
 docs/                    Architecture, ADRs, deployment, and security notes
 ```
@@ -142,6 +145,8 @@ The production target remains Supabase Postgres for relational data, private obj
 More detail is in [docs/deployment.md](docs/deployment.md).
 
 ## Security And Privacy Notes
+
+The fictional demo spreads and product screenshots are intentionally public; real uploaded spreads use signed private routes.
 
 - Share tokens are random and stored as HMAC hashes.
 - Proof link passwords are stored with scrypt hashes.

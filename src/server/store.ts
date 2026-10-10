@@ -1,4 +1,5 @@
 import path from "node:path";
+import { DEMO_ALBUM_ASSETS, getDemoAlbumAsset, upgradeDemoSpread } from "@/lib/demo-album";
 import {
   createId,
   createShareToken,
@@ -10,7 +11,6 @@ import {
 } from "@/server/security";
 import {
   detectImageDimensions,
-  ensureDemoAsset,
   estimatePdfPageCount,
   isPdfFile,
   pdfPagePlaceholderSvg,
@@ -131,60 +131,19 @@ function createSeedData(): ProofAlbumData {
     },
   ];
 
-  const spreads: Spread[] = [
-    {
-      id: "spread_cover",
-      albumVersionId: "version_harper_v1",
-      storageKey: "demo/harper/cover.svg",
-      thumbnailKey: "demo/harper/cover.svg",
-      filename: "01-cover.svg",
-      width: 1400,
-      height: 900,
-      mimeType: "image/svg+xml",
-      sizeBytes: 4200,
-      sortOrder: 1,
-      createdAt,
-    },
-    {
-      id: "spread_ceremony",
-      albumVersionId: "version_harper_v1",
-      storageKey: "demo/harper/ceremony.svg",
-      thumbnailKey: "demo/harper/ceremony.svg",
-      filename: "02-ceremony.svg",
-      width: 1400,
-      height: 900,
-      mimeType: "image/svg+xml",
-      sizeBytes: 4200,
-      sortOrder: 2,
-      createdAt,
-    },
-    {
-      id: "spread_portraits",
-      albumVersionId: "version_harper_v1",
-      storageKey: "demo/harper/portraits.svg",
-      thumbnailKey: "demo/harper/portraits.svg",
-      filename: "03-portraits.svg",
-      width: 1400,
-      height: 900,
-      mimeType: "image/svg+xml",
-      sizeBytes: 4200,
-      sortOrder: 3,
-      createdAt,
-    },
-    {
-      id: "spread_reception",
-      albumVersionId: "version_harper_v1",
-      storageKey: "demo/harper/reception.svg",
-      thumbnailKey: "demo/harper/reception.svg",
-      filename: "04-reception.svg",
-      width: 1400,
-      height: 900,
-      mimeType: "image/svg+xml",
-      sizeBytes: 4200,
-      sortOrder: 4,
-      createdAt,
-    },
-  ];
+  const spreads: Spread[] = DEMO_ALBUM_ASSETS.map((asset, index) => ({
+    id: asset.spreadId,
+    albumVersionId: "version_harper_v1",
+    storageKey: asset.storageKey,
+    thumbnailKey: asset.storageKey,
+    filename: asset.filename,
+    width: asset.width,
+    height: asset.height,
+    mimeType: "image/webp",
+    sizeBytes: asset.sizeBytes,
+    sortOrder: index + 1,
+    createdAt,
+  }));
 
   const comments: Comment[] = [
     {
@@ -264,28 +223,9 @@ function createSeedData(): ProofAlbumData {
   };
 }
 
-async function ensureDemoAssets() {
-  await Promise.all([
-    ensureDemoAsset("demo/harper/cover.svg", "Cover", "Harper Wedding"),
-    ensureDemoAsset(
-      "demo/harper/ceremony.svg",
-      "Ceremony",
-      "Pages 2-3",
-      "#2563eb",
-    ),
-    ensureDemoAsset(
-      "demo/harper/portraits.svg",
-      "Portraits",
-      "Pages 4-5",
-      "#7c3aed",
-    ),
-    ensureDemoAsset(
-      "demo/harper/reception.svg",
-      "Reception",
-      "Pages 6-7",
-      "#dc2626",
-    ),
-  ]);
+function upgradeDemoData(data: ProofAlbumData) {
+  data.spreads = data.spreads.map(upgradeDemoSpread);
+  return data;
 }
 
 export async function resetDemoData() {
@@ -293,14 +233,12 @@ export async function resetDemoData() {
 
   if (shouldUseMemoryStore()) {
     (globalThis as ProofAlbumGlobal).__proofAlbumMemoryData = seed;
-    await ensureDemoAssets();
     return seed;
   }
 
   const { writeFile } = await fsPromises();
   await ensureDataDir();
   await writeFile(dataFile(), JSON.stringify(seed, null, 2));
-  await ensureDemoAssets();
   return seed;
 }
 
@@ -311,15 +249,13 @@ export async function readData(): Promise<ProofAlbumData> {
       return resetDemoData();
     }
 
-    await ensureDemoAssets();
-    return store.__proofAlbumMemoryData;
+    return upgradeDemoData(store.__proofAlbumMemoryData);
   }
 
   try {
     const { readFile } = await fsPromises();
     const raw = await readFile(dataFile(), "utf8");
-    await ensureDemoAssets();
-    return JSON.parse(raw) as ProofAlbumData;
+    return upgradeDemoData(JSON.parse(raw) as ProofAlbumData);
   } catch (error) {
     const code = (error as NodeJS.ErrnoException).code;
     if (code !== "ENOENT") {
@@ -410,11 +346,16 @@ function versionSpreads(data: ProofAlbumData, versionId: string) {
   return data.spreads
     .filter((spread) => spread.albumVersionId === versionId)
     .sort((a, b) => a.sortOrder - b.sortOrder)
-    .map((spread) => ({
-      ...spread,
-      signedUrl: signedAssetUrl(spread.storageKey),
-      thumbnailUrl: signedAssetUrl(spread.thumbnailKey || spread.storageKey),
-    }));
+    .map((spread) => {
+      const sample = getDemoAlbumAsset(spread.storageKey);
+      return {
+        ...spread,
+        signedUrl: sample?.src || signedAssetUrl(spread.storageKey),
+        thumbnailUrl:
+          sample?.thumbnailSrc ||
+          signedAssetUrl(spread.thumbnailKey || spread.storageKey),
+      };
+    });
 }
 
 function summarizeProject(

@@ -38,6 +38,8 @@ describe("ProofAlbum demo store", () => {
 
     expect(proof?.project.id).toBe("project_harper_album");
     expect(proof?.spreads).toHaveLength(4);
+    expect(proof?.spreads[0].signedUrl).toBe("/demo/maya-liam/opening.webp");
+    expect(proof?.spreads[0].thumbnailUrl).toBe("/demo/maya-liam/opening-thumb.webp");
   });
 
   it("rejects comments for spreads outside the proof link", async () => {
@@ -84,7 +86,7 @@ describe("ProofAlbum demo store", () => {
     );
 
     expect(csv).toContain('"version","spread","author_name"');
-    expect(csv).toContain("02-ceremony.svg");
+    expect(csv).toContain("02-ceremony.webp");
   });
 
   it("requires valid signed asset URLs", () => {

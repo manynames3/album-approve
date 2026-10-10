@@ -1,0 +1,54 @@
+[
+  {
+    "name": "opening",
+    "title": "Opening",
+    "spreadId": "spread_cover",
+    "legacyKey": "demo/harper/cover.svg",
+    "storageKey": "demo/maya-liam/opening.webp",
+    "filename": "01-opening.webp",
+    "src": "/demo/maya-liam/opening.webp",
+    "thumbnailSrc": "/demo/maya-liam/opening-thumb.webp",
+    "width": 1774,
+    "height": 887,
+    "sizeBytes": 1935616
+  },
+  {
+    "name": "ceremony",
+    "title": "Ceremony",
+    "spreadId": "spread_ceremony",
+    "legacyKey": "demo/harper/ceremony.svg",
+    "storageKey": "demo/maya-liam/ceremony.webp",
+    "filename": "02-ceremony.webp",
+    "src": "/demo/maya-liam/ceremony.webp",
+    "thumbnailSrc": "/demo/maya-liam/ceremony-thumb.webp",
+    "width": 1774,
+    "height": 887,
+    "sizeBytes": 2458142
+  },
+  {
+    "name": "portraits",
+    "title": "Portraits",
+    "spreadId": "spread_portraits",
+    "legacyKey": "demo/harper/portraits.svg",
+    "storageKey": "demo/maya-liam/portraits.webp",
+    "filename": "03-portraits.webp",
+    "src": "/demo/maya-liam/portraits.webp",
+    "thumbnailSrc": "/demo/maya-liam/portraits-thumb.webp",
+    "width": 1774,
+    "height": 887,
+    "sizeBytes": 2338430
+  },
+  {
+    "name": "reception",
+    "title": "Reception",
+    "spreadId": "spread_reception",
+    "legacyKey": "demo/harper/reception.svg",
+    "storageKey": "demo/maya-liam/reception.webp",
+    "filename": "04-reception.webp",
+    "src": "/demo/maya-liam/reception.webp",
+    "thumbnailSrc": "/demo/maya-liam/reception-thumb.webp",
+    "width": 1774,
+    "height": 887,
+    "sizeBytes": 2211408
+  }
+]
