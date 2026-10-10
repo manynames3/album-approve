@@ -33,7 +33,7 @@ function replacementForm() {
 describe("replaceSpreadAction", () => {
   it("saves before invalidating and navigating back to the updated spread", async () => {
     await expect(replaceSpreadAction(replacementForm())).rejects.toThrow(
-      "redirect:/dashboard/projects/project_harper_album#spread-spread_cover",
+      "redirect:/dashboard/projects/project_harper_album?updatedSpread=spread_cover#spread-spread_cover",
     );
     expect(mocks.replaceSpread).toHaveBeenCalledWith("user_demo", expect.objectContaining({
       projectId: "project_harper_album", spreadId: "spread_cover",

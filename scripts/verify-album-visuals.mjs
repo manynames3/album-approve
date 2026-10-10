@@ -191,11 +191,14 @@ try {
       create: { ...dimensions, channels: 3, background: "#5c7c74" },
     }).png().toBuffer();
     await page.locator("#replacement-spread_cover").setInputFiles({ name: filename, mimeType: "image/png", buffer: fixture });
+    await page.locator('label[for="replacement-spread_cover"]').filter({ hasText: filename }).waitFor();
+    await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
     const responsePromise = page.waitForResponse((response) => response.request().method() === "POST" && response.url().includes("/dashboard/projects/"), { timeout: 15000 });
     await page.getByRole("button", { name: /Replace 0?1-|Replace aspect-check-/ }).click();
     const actionResponse = await responsePromise;
     assert(actionResponse.status() < 400, "Replacement request failed");
-    await page.waitForURL(/#spread-spread_cover$/);
+    await page.waitForURL(/updatedSpread=spread_cover#spread-spread_cover$/);
+    await page.getByRole("status").filter({ hasText: "Replacement saved." }).waitFor();
     await page.locator("figure:has(#replacement-spread_cover) figcaption p").filter({ hasText: filename }).first().waitFor();
     await page.goto(base + "/proof/demo-proof-token");
     await ready(page);
