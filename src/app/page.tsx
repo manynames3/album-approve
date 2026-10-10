@@ -22,7 +22,6 @@ import {
 import { BrandWordmark } from "@/components/brand";
 import { SampleAlbumPreview } from "@/components/marketing/sample-album-preview";
 import { DEMO_ALBUM_ASSETS } from "@/lib/demo-album";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 const instrumentSerif = Instrument_Serif({
@@ -184,38 +183,6 @@ const trustSignals = [
     description:
       "Use the public preview with sample albums. Live client work should run on configured private storage, email, billing, and rate limits.",
     icon: Database,
-  },
-];
-
-const pricingPlans = [
-  {
-    name: "Free",
-    price: "$0",
-    description: "Evaluate the proofing workflow with one active album.",
-    features: ["1 active album", "1 GB private storage", "Basic review"],
-  },
-  {
-    name: "Starter",
-    price: "$12/mo",
-    description: "For photographers sending regular album proofs.",
-    features: [
-      "10 active albums",
-      "20 GB private storage",
-      "Revision history",
-      "Custom branding",
-    ],
-    featured: true,
-  },
-  {
-    name: "Pro",
-    price: "$29/mo",
-    description: "For studios with steady album volume.",
-    features: [
-      "Unlimited active albums",
-      "100 GB private storage",
-      "Revision history",
-      "Custom branding",
-    ],
   },
 ];
 
@@ -508,74 +475,99 @@ export default function Home() {
 
       <section
         id="access"
-        className="mx-auto max-w-7xl px-4 py-24 sm:px-6 sm:py-32 lg:px-8"
+        className="mx-auto max-w-5xl scroll-mt-24 px-4 py-24 sm:px-6 sm:py-32 lg:px-8"
       >
-        <div className="grid gap-10 lg:grid-cols-[0.78fr_1.22fr] lg:items-start">
-          <div>
-            <SectionIntro
-              eyebrow="Pricing and access"
-              title="Preview the workflow first. Pay only for a configured studio rollout."
-              description="The intended plan structure is shown here, but this deployment is for evaluation. Open the workspace, review the sample album, and confirm whether the proofing loop fits your studio before payment is collected."
-            />
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-              {/* Until a sales intake form is wired, route interested studios to the existing workspace preview. */}
-              <Button asChild size="lg" className="gap-2 bg-teal-700 px-5">
-                <Link href="/sign-up">
-                  Try studio workspace
-                  <ArrowRight className="size-4" aria-hidden="true" />
-                </Link>
-              </Button>
-              <Button
-                asChild
-                size="lg"
-                variant="outline"
-                className="gap-2 border-zinc-300 bg-white px-5 shadow-none"
-              >
-                <Link href="/pricing">Review plan structure</Link>
-              </Button>
-            </div>
-            <p className="mt-5 max-w-xl text-sm leading-6 text-zinc-500">
-              Preview note: do not upload real client work here unless the
-              deployment is configured with private storage, email, billing, and
-              rate limits.
+        <div className="mx-auto max-w-2xl text-center">
+          <p className="text-xs font-medium text-teal-700">
+            Explore Album Approve
+          </p>
+          <h2
+            className={`${instrumentSerif.className} mt-4 text-[32px] font-normal leading-[1.1] sm:text-[40px]`}
+          >
+            See how album approval should feel.
+          </h2>
+          <p className="mx-auto mt-5 max-w-xl text-base leading-7 text-zinc-500">
+            Try the client proof. Explore the studio workspace. No payment
+            required.
+          </p>
+        </div>
+        <div className="mt-12 grid gap-5 md:grid-cols-2">
+          <article className="flex min-w-0 flex-col rounded-lg border border-teal-700/25 bg-white p-6 shadow-[0_4px_24px_rgba(24,24,27,0.04)] sm:p-8">
+            <BookOpen className="size-5 text-teal-700" aria-hidden />
+            <h3 className="mt-6 text-xl font-semibold">The client view</h3>
+            <p className="mt-3 text-sm leading-6 text-zinc-600">
+              One album link. Precise feedback. A clear approval decision.
             </p>
-          </div>
-          <div className="grid gap-8 md:grid-cols-3">
-            {pricingPlans.map((plan) => (
-              <article
-                key={plan.name}
-                className={`border-t border-zinc-200 pt-6 ${
-                  plan.featured ? "shadow-[inset_0_0_0_1px_#0f766e]" : ""
-                }`}
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <h3 className="text-base font-semibold">{plan.name}</h3>
-                  {plan.featured ? (
-                    <Badge className="rounded-md bg-teal-700 text-white">
-                      Common
-                    </Badge>
-                  ) : null}
-                </div>
-                <p className="mt-4 text-3xl font-semibold text-zinc-950">
-                  {plan.price}
-                </p>
-                <p className="mt-3 min-h-12 text-sm leading-6 text-zinc-600">
-                  {plan.description}
-                </p>
-                <ul className="mt-6 space-y-3 text-sm text-zinc-600">
-                  {plan.features.map((feature) => (
-                    <li key={feature} className="flex gap-2">
-                      <CheckCircle2
-                        className="mt-0.5 size-4 shrink-0 text-teal-700"
-                        aria-hidden
-                      />
-                      <span>{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-              </article>
-            ))}
-          </div>
+            <ul className="my-7 space-y-3 text-sm text-zinc-600">
+              {[
+                "Four sample wedding spreads",
+                "Full-screen detail and pinned comments",
+                "No client login",
+              ].map((feature) => (
+                <li key={feature} className="flex gap-2.5">
+                  <CheckCircle2
+                    className="mt-0.5 size-4 shrink-0 text-teal-700"
+                    aria-hidden
+                  />
+                  <span>{feature}</span>
+                </li>
+              ))}
+            </ul>
+            <Button
+              asChild
+              size="lg"
+              className="mt-auto w-full gap-2 bg-teal-700 shadow-none hover:bg-teal-800"
+            >
+              <Link href="/proof/demo-proof-token">
+                Open sample proof <ArrowRight className="size-4" aria-hidden />
+              </Link>
+            </Button>
+          </article>
+          <article className="flex min-w-0 flex-col rounded-lg border border-zinc-200 bg-white p-6 sm:p-8">
+            <FileUp className="size-5 text-zinc-500" aria-hidden />
+            <h3 className="mt-6 text-xl font-semibold">The studio workspace</h3>
+            <p className="mt-3 text-sm leading-6 text-zinc-600">
+              Keep spreads, revisions, and client notes together.
+            </p>
+            <ul className="my-7 space-y-3 text-sm text-zinc-600">
+              {[
+                "JPG and PNG uploads",
+                "Album version history",
+                "CSV feedback export",
+              ].map((feature) => (
+                <li key={feature} className="flex gap-2.5">
+                  <CheckCircle2
+                    className="mt-0.5 size-4 shrink-0 text-zinc-400"
+                    aria-hidden
+                  />
+                  <span>{feature}</span>
+                </li>
+              ))}
+            </ul>
+            <Button
+              asChild
+              size="lg"
+              variant="outline"
+              className="mt-auto w-full gap-2 border-zinc-300 bg-white shadow-none"
+            >
+              <Link href="/sign-up">
+                Try studio workspace{" "}
+                <ArrowRight className="size-4" aria-hidden />
+              </Link>
+            </Button>
+          </article>
+        </div>
+        <div className="mt-8 flex flex-col items-center gap-3 text-center text-xs leading-5 text-zinc-500">
+          <p>
+            Sample files only. Changes are temporary. Paid plans are not
+            available yet.
+          </p>
+          <Link
+            href="/pricing"
+            className="font-medium text-zinc-700 underline decoration-zinc-300 underline-offset-4 hover:text-teal-700"
+          >
+            See planned pricing
+          </Link>
         </div>
       </section>
 
