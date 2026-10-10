@@ -2,6 +2,7 @@ import { LockKeyhole } from "lucide-react";
 import { unlockProofAction } from "@/app/actions/proof";
 import { BrandMark, BrandWordmark } from "@/components/brand";
 import { ProofViewer } from "@/components/proof/proof-viewer";
+import { DemoFunnel } from "@/components/marketing/demo-funnel";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -13,7 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { hasProofAccess } from "@/server/proof-access";
-import { getProofByToken } from "@/server/store";
+import { DEMO_SHARE_TOKEN, getProofByToken } from "@/server/store";
 
 export const dynamic = "force-dynamic";
 
@@ -82,12 +83,15 @@ export default async function ProofPage({
   }
 
   return (
-    <ProofViewer
-      proof={proof}
-      token={token}
-      defaultName={query.client || proof.client.name}
-      defaultEmail={query.email || proof.client.email}
-      submitted={query.submitted}
-    />
+    <>
+      {token === DEMO_SHARE_TOKEN ? <DemoFunnel /> : null}
+      <ProofViewer
+        proof={proof}
+        token={token}
+        defaultName={query.client || proof.client.name}
+        defaultEmail={query.email || proof.client.email}
+        submitted={query.submitted}
+      />
+    </>
   );
 }

@@ -3,6 +3,7 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { hashIp } from "@/server/security";
+import { recordDemoFunnel } from "@/server/demo-funnel";
 import { proofCommentSchema, proofDecisionSchema } from "@/server/schema";
 import {
   addCommentByToken,
@@ -43,6 +44,7 @@ export async function addProofCommentAction(formData: FormData) {
   const accessGranted = await hasProofAccess(input.token);
 
   await addCommentByToken({ ...input, accessGranted });
+  await recordDemoFunnel("commented", input.token);
   redirect(
     `/proof/${encodeURIComponent(input.token)}?client=${encodeURIComponent(
       input.authorName,

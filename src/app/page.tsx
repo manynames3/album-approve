@@ -9,9 +9,7 @@ import {
   Clock3,
   Database,
   FileSpreadsheet,
-  FileUp,
   KeyRound,
-  Link2,
   LockKeyhole,
   MessageSquareText,
   Repeat2,
@@ -20,6 +18,8 @@ import {
   XCircle,
 } from "lucide-react";
 import { BrandWordmark } from "@/components/brand";
+import { PricingPlans } from "@/components/marketing/pricing-plans";
+import { WorkflowPreview } from "@/components/marketing/workflow-preview";
 import { SampleAlbumPreview } from "@/components/marketing/sample-album-preview";
 import { DEMO_ALBUM_ASSETS } from "@/lib/demo-album";
 import { Button } from "@/components/ui/button";
@@ -33,7 +33,7 @@ const navItems = [
   { label: "Problem", href: "#problem" },
   { label: "Workflow", href: "#workflow" },
   { label: "Trust", href: "#trust" },
-  { label: "Access", href: "#access" },
+  { label: "Pricing", href: "#access" },
   { label: "FAQ", href: "#faq" },
 ];
 
@@ -58,27 +58,6 @@ const painfulWorkflow = [
     title: "Approval becomes hard to prove",
     description:
       "When the album is ready for production, the studio still has to confirm which version was approved and what comments were resolved.",
-  },
-];
-
-const solutionSteps = [
-  {
-    title: "Upload the exported spreads",
-    description:
-      "Add exported JPG or PNG spreads to a client project after the layout is ready for review.",
-    icon: FileUp,
-  },
-  {
-    title: "Send one proof link",
-    description:
-      "Share a tokenized client proof that opens in the browser, flips through the album, and can be password protected.",
-    icon: Link2,
-  },
-  {
-    title: "Resolve feedback before production",
-    description:
-      "See spread-level notes, create revised versions, export CSV feedback, and capture the final approval decision.",
-    icon: CheckCircle2,
   },
 ];
 
@@ -138,24 +117,19 @@ const useCases = [
 
 const differentiation = [
   {
-    question: "Why not just use ChatGPT?",
+    question: "Why not email?",
     answer:
-      "ChatGPT can help write emails. It does not host private album spreads, pin feedback to a layout, track versions, or capture a client approval record.",
+      "Email works for a quick reply. It gets harder when a photo swap arrives by text and approval lands in another thread. Keep each note beside the spread it refers to.",
   },
   {
-    question: "Why not spreadsheets?",
+    question: "Why not a marked-up PDF?",
     answer:
-      "A spreadsheet can track tasks after the fact. It does not give the client a visual proofing experience or prevent vague notes from entering the workflow.",
+      "A PDF is fine for a one-off review. A proof link gives clients the current version, visual comments, and an explicit approval step in the same place.",
   },
   {
-    question: "Why not Zapier or n8n?",
+    question: "Why not a spreadsheet?",
     answer:
-      "Automation tools can move data between systems. They do not replace the client-facing review surface where the feedback is created.",
-  },
-  {
-    question: "Why not keep doing it manually?",
-    answer:
-      "Manual proofing works until revisions pile up. The cost is time spent interpreting notes, chasing approvals, and rebuilding the same handoff list.",
+      "A sheet can track your change list. It cannot show clients where to leave a note on the layout. Export the feedback as CSV when your designer needs a handoff.",
   },
 ];
 
@@ -193,9 +167,9 @@ const faqItems = [
       "Wedding and portrait photographers, album designers, and small studios that send album spreads to clients for review before production.",
   },
   {
-    question: "How is this different from generic AI tools?",
+    question: "Can I keep my existing album design software?",
     answer:
-      "This is not an AI writing tool. It is a focused album proofing workflow: upload spreads, share a proof link, collect visual comments, manage revisions, and record approval.",
+      "Yes. Export JPG or PNG spreads from your design tool, then upload them for review. Album Approve handles feedback and approval, not album design.",
   },
   {
     question: "What setup is required?",
@@ -304,7 +278,7 @@ export default function Home() {
             </Button>
           </div>
           <p className="mt-4 text-xs leading-5 text-zinc-400">
-            No payment required. Sample files only.
+            No client account needed to review.
           </p>
         </div>
         <div className="mx-auto mt-6 max-w-6xl sm:mt-16">
@@ -354,35 +328,14 @@ export default function Home() {
         id="workflow"
         className="mx-auto max-w-7xl px-4 py-24 sm:px-6 sm:py-32 lg:px-8"
       >
-        <div className="grid gap-10 lg:grid-cols-[0.72fr_1.28fr] lg:items-start">
+        <div className="mx-auto max-w-2xl text-center">
           <SectionIntro
-            eyebrow="The workflow"
-            title="A clear path from exported spread to final approval."
-            description="Album Approve starts after the design is ready. It gives the studio a review surface, not another generic project board."
+            eyebrow="From design to decision"
+            title="Upload. Review. Approve."
+            description="Keep your design tools. Give your clients one place to review the finished album."
           />
-          <div className="grid gap-8 md:grid-cols-3">
-            {solutionSteps.map((item, index) => {
-              const Icon = item.icon;
-              return (
-                <article
-                  key={item.title}
-                  className="border-t border-zinc-200 pt-6"
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <Icon className="size-5 text-teal-700" aria-hidden />
-                    <span className="text-xs font-semibold text-zinc-400">
-                      0{index + 1}
-                    </span>
-                  </div>
-                  <h3 className="mt-8 text-base font-semibold">{item.title}</h3>
-                  <p className="mt-3 text-sm leading-6 text-zinc-600">
-                    {item.description}
-                  </p>
-                </article>
-              );
-            })}
-          </div>
         </div>
+        <WorkflowPreview />
       </section>
 
       <section className="border-y border-zinc-200 bg-white px-4 py-24 sm:px-6 sm:py-32 lg:px-8">
@@ -437,8 +390,8 @@ export default function Home() {
         <div className="grid gap-10 lg:grid-cols-[0.78fr_1.22fr] lg:items-start">
           <SectionIntro
             eyebrow="Why this"
-            title="This solves the review surface, not just the admin around it."
-            description="Generic tools can help after feedback exists. Album Approve is where the client creates clear feedback in the first place."
+            title="Keep feedback out of your inbox."
+            description="Your clients should not have to describe a visual change across three different channels."
           />
           <div className="grid gap-8 md:grid-cols-2">
             {differentiation.map((item) => (
@@ -475,98 +428,28 @@ export default function Home() {
 
       <section
         id="access"
-        className="mx-auto max-w-5xl scroll-mt-24 px-4 py-24 sm:px-6 sm:py-32 lg:px-8"
+        className="mx-auto max-w-7xl scroll-mt-24 px-4 py-24 sm:px-6 sm:py-32 lg:px-8"
       >
         <div className="mx-auto max-w-2xl text-center">
-          <p className="text-xs font-medium text-teal-700">
-            Explore Album Approve
-          </p>
+          <p className="text-xs font-medium text-teal-700">Planned pricing</p>
           <h2
             className={`${instrumentSerif.className} mt-4 text-[32px] font-normal leading-[1.1] sm:text-[40px]`}
           >
-            See how album approval should feel.
+            Simple plans for album proofing.
           </h2>
-          <p className="mx-auto mt-5 max-w-xl text-base leading-7 text-zinc-500">
-            Try the client proof. Explore the studio workspace. No payment
-            required.
+          <p className="mt-5 text-base leading-7 text-zinc-500">
+            Choose by album volume. Preview the workflow before deciding.
           </p>
         </div>
-        <div className="mt-12 grid gap-5 md:grid-cols-2">
-          <article className="flex min-w-0 flex-col rounded-lg border border-teal-700/25 bg-white p-6 shadow-[0_4px_24px_rgba(24,24,27,0.04)] sm:p-8">
-            <BookOpen className="size-5 text-teal-700" aria-hidden />
-            <h3 className="mt-6 text-xl font-semibold">The client view</h3>
-            <p className="mt-3 text-sm leading-6 text-zinc-600">
-              One album link. Precise feedback. A clear approval decision.
-            </p>
-            <ul className="my-7 space-y-3 text-sm text-zinc-600">
-              {[
-                "Four sample wedding spreads",
-                "Full-screen detail and pinned comments",
-                "No client login",
-              ].map((feature) => (
-                <li key={feature} className="flex gap-2.5">
-                  <CheckCircle2
-                    className="mt-0.5 size-4 shrink-0 text-teal-700"
-                    aria-hidden
-                  />
-                  <span>{feature}</span>
-                </li>
-              ))}
-            </ul>
-            <Button
-              asChild
-              size="lg"
-              className="mt-auto w-full gap-2 bg-teal-700 shadow-none hover:bg-teal-800"
-            >
-              <Link href="/proof/demo-proof-token">
-                Open sample proof <ArrowRight className="size-4" aria-hidden />
-              </Link>
-            </Button>
-          </article>
-          <article className="flex min-w-0 flex-col rounded-lg border border-zinc-200 bg-white p-6 sm:p-8">
-            <FileUp className="size-5 text-zinc-500" aria-hidden />
-            <h3 className="mt-6 text-xl font-semibold">The studio workspace</h3>
-            <p className="mt-3 text-sm leading-6 text-zinc-600">
-              Keep spreads, revisions, and client notes together.
-            </p>
-            <ul className="my-7 space-y-3 text-sm text-zinc-600">
-              {[
-                "JPG and PNG uploads",
-                "Album version history",
-                "CSV feedback export",
-              ].map((feature) => (
-                <li key={feature} className="flex gap-2.5">
-                  <CheckCircle2
-                    className="mt-0.5 size-4 shrink-0 text-zinc-400"
-                    aria-hidden
-                  />
-                  <span>{feature}</span>
-                </li>
-              ))}
-            </ul>
-            <Button
-              asChild
-              size="lg"
-              variant="outline"
-              className="mt-auto w-full gap-2 border-zinc-300 bg-white shadow-none"
-            >
-              <Link href="/sign-up">
-                Try studio workspace{" "}
-                <ArrowRight className="size-4" aria-hidden />
-              </Link>
-            </Button>
-          </article>
+        <div className="mt-12">
+          <PricingPlans />
         </div>
-        <div className="mt-8 flex flex-col items-center gap-3 text-center text-xs leading-5 text-zinc-500">
-          <p>
-            Sample files only. Changes are temporary. Paid plans are not
-            available yet.
-          </p>
+        <div className="mt-8 text-center">
           <Link
             href="/pricing"
-            className="font-medium text-zinc-700 underline decoration-zinc-300 underline-offset-4 hover:text-teal-700"
+            className="inline-flex items-center gap-2 text-sm font-medium text-teal-700 hover:text-teal-800"
           >
-            See planned pricing
+            View plan details <ArrowRight className="size-4" aria-hidden />
           </Link>
         </div>
       </section>
