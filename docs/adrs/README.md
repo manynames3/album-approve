@@ -6,3 +6,4 @@ These ADRs document the main architecture decisions behind Album Approve.
 - [ADR 0002: Keep A Local Preview Store Behind A Server Boundary](0002-local-demo-store-behind-server-boundary.md)
 - [ADR 0003: Use Hashed Proof Tokens And Signed Asset URLs](0003-hashed-proof-tokens-and-signed-assets.md)
 - [ADR 0004: Isolate External Service Integrations](0004-isolate-external-service-integrations.md)
+- [ADR 0005: Use Workers For A Disposable Hosted Preview](0005-workers-disposable-hosted-preview.md)

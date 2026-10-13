@@ -1,0 +1,40 @@
+{
+  "sourceCommit": "893f393189f3a25a09d7413b8ce3cb9d9097a9c3",
+  "capturedAt": "2026-10-13T17:49:57.235Z",
+  "data": "Fictional Maya and Liam sample, disposable loopback-only memory runtime",
+  "steps": [
+    "Uploaded existing four sample PNG exports",
+    "Saved a real pinned comment on spread 2 requesting the portraits spread",
+    "Replaced spread 2 using the existing portraits.png export and observed Replacement saved",
+    "Resolved the note through the existing studio control",
+    "Confirmed version 1 approval through the existing checkbox/dialog and observed recorded confirmation"
+  ],
+  "notes": [
+    "No app UI was composited or invented",
+    "Only the Next.js development overlay was hidden in captures",
+    "comment-detail.webp is a crop of the actual feedback screenshot",
+    "Unapproved draft was recaptured before the final replacement so all media depicts the same requested change"
+  ],
+  "captures": [
+    {
+      "file": "feedback.webp",
+      "sha256": "2aef4b92941c81aba73564c1bc1dfa495799f345ec45c5a5395f3cf71743d170",
+      "bytes": 136094
+    },
+    {
+      "file": "replacement.webp",
+      "sha256": "30197855a3883a87aec35c9229f60d502e9a3784627e86d52ab99b6ba84135c8",
+      "bytes": 76438
+    },
+    {
+      "file": "approval.webp",
+      "sha256": "ca3d962d2a89f15d37c095fab5a0528f2fe9592adc6374886193ded4214e0202",
+      "bytes": 122294
+    },
+    {
+      "file": "comment-detail.webp",
+      "sha256": "e29ff539b5c39dc494421560ff6e5ee6340d09f4ec68402c7f88e43fd50fe1f8",
+      "bytes": 5808
+    }
+  ]
+}

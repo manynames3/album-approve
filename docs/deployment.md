@@ -10,6 +10,8 @@ npm run deploy:cf
 
 `wrangler.jsonc` configures the Worker name, OpenNext output, static assets binding, Node.js compatibility, and `PROOFALBUM_STORAGE=memory` for the hosted demo. The memory store keeps the demo self-contained, but it is not durable storage.
 
+> **Do not use the hosted preview for real client work.** Application data and uploaded bytes are isolate-local, can disappear on Worker recycling/redeployment, and are not shared across isolates. Successful saves and approvals do not establish durable records. Only bundled public sample assets and the workflow recording are deployed static files.
+
 Cloudflare Pages is appropriate for static Next.js exports. This app uses Server Actions and route handlers, so the full-stack Cloudflare deployment uses Workers.
 
 ## GitHub Deployment
@@ -23,7 +25,7 @@ The workflow runs manually on `main`, or when its own workflow file changes on `
 
 ## Production Target
 
-For production traffic, replace the hosted demo's memory storage with Supabase Postgres and private object storage. Set all variables from `.env.example` in Cloudflare before production traffic.
+For production traffic, implement database-backed operations in `src/server/store.ts`, durable private object storage in `src/server/storage.ts`, and production identity/membership enforcement. Supabase currently supplies a schema and readiness check, not application persistence. Setting its environment variables alone will not move data out of memory. Configure the services below only as part of that implementation and validation. See [ADR 0005](adrs/0005-workers-disposable-hosted-preview.md).
 
 ## Supabase
 

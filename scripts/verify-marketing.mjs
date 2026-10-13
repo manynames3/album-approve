@@ -44,6 +44,13 @@ async function layout(page) {
   assert.deepEqual(overflowing, [], "Control text overflow");
 }
 
+async function openWorkflow(page) {
+  const summary = page.getByText("Play the 24-second desktop walkthrough", {
+    exact: true,
+  });
+  if (await summary.count()) await summary.click();
+}
+
 try {
   for (const width of [1440, 768, 390, 320]) {
     const context = await browser.newContext({
@@ -55,6 +62,7 @@ try {
     page.on("pageerror", (error) => errors.push(error.message));
     await page.goto(base);
     await layout(page);
+    await openWorkflow(page);
     const workflow = page.locator("[data-workflow-preview]");
     await workflow
       .getByRole("tab", { name: "1. Upload", exact: true })
@@ -211,6 +219,35 @@ try {
   const auto = await browser.newContext({
     viewport: { width: 1440, height: 1000 },
   });
+  const navigation = await browser.newContext();
+  const destination = await navigation.newPage();
+  await destination.goto(base);
+  await destination.waitForFunction(
+    () => window.ScrollCraft?.instances.length === 1,
+  );
+  await destination.locator('header a[href="#access"]').click();
+  await destination.locator('header a[href="/proof/demo-proof-token"]').click();
+  await destination.locator("[data-spread-canvas]").waitFor();
+  assert.equal(
+    await destination.evaluate(() => window.ScrollCraft?.instances.length || 0),
+    0,
+  );
+  assert.equal(
+    await destination.locator("style[data-album-scrollcraft]").count(),
+    0,
+  );
+  await destination.goBack();
+  await destination.waitForFunction(
+    () =>
+      !!document.querySelector("[data-album-marketing]") &&
+      window.ScrollCraft?.instances.length === 1,
+    undefined,
+    { timeout: 4000 },
+  );
+  await navigation.close();
+  console.log(
+    "Chapter-to-proof navigation, engine/style cleanup, and native Back remount passed",
+  );
   const automatic = await auto.newPage();
   let downloads = 0;
   automatic.on("request", (request) => {
@@ -219,6 +256,7 @@ try {
   await automatic.goto(base);
   await automatic.waitForTimeout(400);
   assert.equal(downloads, 0, "Demo downloads before the workflow is visible");
+  await openWorkflow(automatic);
   await automatic
     .locator("[data-workflow-preview] figure")
     .scrollIntoViewIfNeeded();
@@ -267,6 +305,7 @@ try {
   );
   const savingPage = await saving.newPage();
   await savingPage.goto(base);
+  await openWorkflow(savingPage);
   await savingPage
     .locator("[data-workflow-preview] figure")
     .scrollIntoViewIfNeeded();
@@ -283,6 +322,7 @@ try {
   await broken.route("**/*.mp4", (route) => route.abort());
   const brokenPage = await broken.newPage();
   await brokenPage.goto(base);
+  await openWorkflow(brokenPage);
   await brokenPage
     .getByRole("button", { name: "Play workflow demo", exact: true })
     .click();
